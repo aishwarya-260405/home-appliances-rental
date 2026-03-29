@@ -1,17 +1,15 @@
 # Home Appliances Rental System
 
-A mini project using Node.js, Express, EJS, and SQLite.
+A web application built using Node.js, Express, SQLite, and EJS.
 
 ## Features
-- User Registration
-- User Login
-- View Products
-- Send Rental Requests
-- View My Requests
+- User login & registration
+- View appliances
+- Rent products
+- Request tracking
 
-## Technologies Used
+## Tech Stack
 - Node.js
 - Express.js
+- SQLite
 - EJS
-- SQLite3
-- CSS
