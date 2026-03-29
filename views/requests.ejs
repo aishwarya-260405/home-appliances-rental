@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Requests - Home Appliances Rental</title>
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <nav class="navbar">
+    <div class="logo">Home Appliances Rental</div>
+    <div class="nav-links">
+      <a href="/">Home</a>
+      <a href="/products">Products</a>
+
+      <% if (user) { %>
+        <a href="/requests">My Requests</a>
+        <a href="/logout">Logout</a>
+      <% } else { %>
+        <a href="/login">Login</a>
+        <a href="/register">Register</a>
+      <% } %>
+    </div>
+  </nav>
+
+  <div class="page-container">
+    <h2 class="page-title">My Rental Requests</h2>
+
+    <% if (requests.length === 0) { %>
+      <p class="empty-message">No rental requests found.</p>
+    <% } else { %>
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Product</th>
+            <th>Category</th>
+            <th>Price / Month</th>
+            <th>Status</th>
+            <th>Requested On</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% requests.forEach(item => { %>
+            <tr>
+              <td><%= item.id %></td>
+              <td><%= item.name %></td>
+              <td><%= item.category %></td>
+              <td>₹<%= item.price %></td>
+              <td>
+                <span style="color: <%= item.status === 'Pending' ? 'orange' : 'green' %>;">
+                  <%= item.status %>
+                </span>
+              </td>
+              <td><%= item.request_date %></td>
+
+              <td>
+                <form action="/requests/delete" method="POST">
+                  <input type="hidden" name="id" value="<%= item.id %>">
+                  <button class="btn-small">Cancel</button>
+                </form>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    <% } %>
+  </div>
+</body>
+</html>

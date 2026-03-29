@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Products - Home Appliances Rental</title>
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <nav class="navbar">
+    <div class="logo">Home Appliances Rental</div>
+    <div class="nav-links">
+      <a href="/">Home</a>
+      <a href="/products">Products</a>
+
+      <% if (user) { %>
+        <a href="/requests">My Requests</a>
+        <a href="/logout">Logout</a>
+      <% } else { %>
+        <a href="/login">Login</a>
+        <a href="/register">Register</a>
+      <% } %>
+    </div>
+  </nav>
+
+  <section class="products-section">
+    <h1>Available Appliances</h1>
+
+    <div class="products-grid">
+      <% products.forEach(product => { %>
+        <div class="product-card">
+          <img src="<%= product.image %>" alt="<%= product.name %>" class="product-image" />
+
+          <div class="product-info">
+            <h2><%= product.name %></h2>
+            <p class="price">₹<%= product.price %> / month</p>
+            <p class="description">Category: <%= product.category %></p>
+
+            <% if (user) { %>
+              <form action="/requests/add" method="POST">
+                <input type="hidden" name="product_id" value="<%= product.id %>" />
+                <button type="submit" class="btn">Rent Now</button>
+              </form>
+            <% } else { %>
+              <a href="/login" class="btn">Login to Rent</a>
+            <% } %>
+          </div>
+        </div>
+      <% }) %>
+    </div>
+  </section>
+</body>
+</html>

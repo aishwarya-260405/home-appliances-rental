@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Home Appliances Rental</title>
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <nav class="navbar">
+    <div class="logo">Home Appliances Rental</div>
+    <div class="nav-links">
+      <a href="/">Home</a>
+      <a href="/products">Products</a>
+
+      <% if (user) { %>
+        <a href="/requests">My Requests</a>
+        <a href="/logout">Logout</a>
+      <% } else { %>
+        <a href="/login">Login</a>
+        <a href="/register">Register</a>
+      <% } %>
+    </div>
+  </nav>
+
+  <section class="hero">
+    <div class="hero-content">
+      <h1>Welcome to Home Appliances Rental System</h1>
+      <p>Rent quality home appliances at affordable monthly prices.</p>
+
+      <% if (user) { %>
+        <p class="welcome-text">Hello, <strong><%= user.username %></strong></p>
+        <a class="btn" href="/products">Browse Products</a>
+      <% } else { %>
+        <a class="btn" href="/products">Get Started</a>
+      <% } %>
+    </div>
+  </section>
+</body>
+</html>

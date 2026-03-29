@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Register - Home Appliances Rental</title>
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <nav class="navbar">
+    <div class="logo">Home Appliances Rental</div>
+    <div class="nav-links">
+      <a href="/">Home</a>
+      <a href="/products">Products</a>
+
+      <% if (user) { %>
+        <a href="/requests">My Requests</a>
+        <a href="/logout">Logout</a>
+      <% } else { %>
+        <a href="/login">Login</a>
+        <a href="/register">Register</a>
+      <% } %>
+    </div>
+  </nav>
+
+  <div class="form-container">
+    <h2>Register</h2>
+
+    <% if (error) { %>
+      <p class="error"><%= error %></p>
+    <% } %>
+
+    <% if (success) { %>
+      <p class="success"><%= success %></p>
+    <% } %>
+
+    <form action="/register" method="POST">
+      <input type="text" name="username" placeholder="Choose username" required />
+      <input type="password" name="password" placeholder="Choose password" required />
+      <button type="submit">Register</button>
+    </form>
+
+    <p class="small-text">
+      Already have an account? <a href="/login">Login here</a>
+    </p>
+  </div>
+</body>
+</html>
