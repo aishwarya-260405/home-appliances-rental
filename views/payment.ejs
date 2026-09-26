@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Secure Payment - Home Appliances Rental</title>
+
+  <link rel="stylesheet" href="/style.css">
+
+  <style>
+    .payment-container {
+      max-width: 600px;
+      margin: 50px auto;
+      background: white;
+      padding: 35px;
+      border-radius: 15px;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.12);
+      text-align: center;
+    }
+
+    .payment-container h1 {
+      color: #1e3a8a;
+      margin-bottom: 25px;
+    }
+
+    .payment-product {
+      margin-bottom: 25px;
+    }
+
+    .payment-product img {
+      width: 180px;
+      height: 150px;
+      object-fit: cover;
+      border-radius: 12px;
+      margin-bottom: 15px;
+    }
+
+    .payment-product h2 {
+      color: #1e3a8a;
+      margin-bottom: 8px;
+    }
+
+    .payment-details {
+      background: #f1f5ff;
+      padding: 20px;
+      border-radius: 10px;
+      margin: 25px 0;
+    }
+
+    .payment-details p {
+      margin: 8px 0;
+      font-size: 16px;
+    }
+
+    .payment-total {
+      font-size: 28px;
+      font-weight: bold;
+      color: #2563eb;
+      margin-top: 15px;
+    }
+
+    .pay-btn {
+      width: 100%;
+      padding: 15px;
+      font-size: 18px;
+      background: #2563eb;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .pay-btn:hover {
+      background: #1d4ed8;
+    }
+
+    .secure-text {
+      margin-top: 18px;
+      color: #555;
+      font-size: 14px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <nav class="navbar">
+
+    <div class="logo">
+      Home Appliances Rental
+    </div>
+
+    <div class="nav-links">
+      <a href="/">Home</a>
+      <a href="/products">Products</a>
+      <a href="/requests">My Requests</a>
+      <a href="/logout">Logout</a>
+    </div>
+
+  </nav>
+
+
+  <div class="payment-container">
+
+    <h1>Secure Payment</h1>
+
+
+    <div class="payment-product">
+
+      <img
+        src="<%= product.image %>"
+        alt="<%= product.name %>"
+      >
+
+      <h2>
+        <%= product.name %>
+      </h2>
+
+      <p>
+        Category: <%= product.category %>
+      </p>
+
+    </div>
+
+
+    <div class="payment-details">
+
+      <p>
+        Monthly Price:
+        <strong>
+          ₹<%= product.price.toLocaleString("en-IN") %>
+        </strong>
+      </p>
+
+
+      <p>
+        Rental Duration:
+        <strong>
+          <%= rentalMonths %>
+          Month<%= rentalMonths > 1 ? "s" : "" %>
+        </strong>
+      </p>
+
+
+      <p class="payment-total">
+
+        Total:
+        ₹<%= totalAmount.toLocaleString("en-IN") %>
+
+      </p>
+
+    </div>
+
+
+    <button
+      id="pay-button"
+      class="pay-btn"
+    >
+      Pay ₹<%= totalAmount.toLocaleString("en-IN") %>
+    </button>
+
+
+    <p class="secure-text">
+      🔒 Secure payment powered by Razorpay
+    </p>
+
+  </div>
+
+
+  <!-- Razorpay Checkout -->
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+
+  <script>
+
+    // ======================================================
+    // RAZORPAY OPTIONS
+    // ======================================================
+
+    const options = {
+
+      key: "<%= razorpayKeyId %>",
+
+      amount: <%= totalAmount * 100 %>,
+
+      currency: "INR",
+
+      name: "Home Appliances Rental",
+
+      description:
+        "<%= product.name %> Rental",
+
+      order_id:
+        "<%= razorpayOrderId %>",
+
+
+      // ====================================================
+      // PAYMENT SUCCESS HANDLER
+      // ====================================================
+
+      handler: async function (response) {
+
+        console.log(
+          "🔥 RAZORPAY PAYMENT RESPONSE:",
+          response
+        );
+
+
+        try {
+
+          // ================================================
+          // SEND PAYMENT DETAILS TO BACKEND
+          // ================================================
+
+          const verificationResponse =
+            await fetch(
+              "/payment/verify",
+              {
+                method: "POST",
+
+                headers: {
+                  "Content-Type":
+                    "application/json"
+                },
+
+                body: JSON.stringify({
+
+                  razorpay_order_id:
+                    response.razorpay_order_id,
+
+                  razorpay_payment_id:
+                    response.razorpay_payment_id,
+
+                  razorpay_signature:
+                    response.razorpay_signature
+
+                })
+
+              }
+            );
+
+
+          const result =
+            await verificationResponse.json();
+
+
+          console.log(
+            "🔥 VERIFICATION RESULT:",
+            result
+          );
+
+
+          // ==============================================
+          // VERIFICATION SUCCESS
+          // ==============================================
+
+          if (result.success) {
+
+            alert(
+              "Payment successful and verified! 🎉"
+            );
+
+            window.location.href =
+              "/requests";
+
+          }
+
+
+          // ==============================================
+          // VERIFICATION FAILED
+          // ==============================================
+
+          else {
+
+            alert(
+              "Payment was completed, but verification failed."
+            );
+
+          }
+
+        }
+
+        catch (error) {
+
+          console.error(
+            "Payment verification error:",
+            error
+          );
+
+          alert(
+            "Payment completed, but verification could not be completed."
+          );
+
+        }
+
+      }
+
+    };
+
+
+    // ======================================================
+    // CREATE RAZORPAY CHECKOUT
+    // ======================================================
+
+    const razorpay =
+      new Razorpay(options);
+
+
+    // ======================================================
+    // OPEN PAYMENT WINDOW
+    // ======================================================
+
+    document
+      .getElementById("pay-button")
+      .addEventListener(
+        "click",
+        function () {
+
+          razorpay.open();
+
+        }
+      );
+
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  />
+
+  <title>
+    Rent <%= product.name %> - Home Appliances Rental
+  </title>
+
+  <link rel="stylesheet" href="/style.css" />
+
+  <style>
+    .rent-container {
+      max-width: 600px;
+      margin: 50px auto;
+      background: white;
+      padding: 35px;
+      border-radius: 15px;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.12);
+    }
+
+    .rent-container h1 {
+      text-align: center;
+      color: #1e3a8a;
+      margin-bottom: 25px;
+    }
+
+    .rent-product {
+      text-align: center;
+      margin-bottom: 25px;
+    }
+
+    .rent-product img {
+      width: 220px;
+      height: 180px;
+      object-fit: cover;
+      border-radius: 12px;
+      margin-bottom: 15px;
+    }
+
+    .rent-product h2 {
+      color: #1e3a8a;
+      margin-bottom: 8px;
+    }
+
+    .rent-price {
+      font-size: 20px;
+      font-weight: bold;
+      color: #2563eb;
+    }
+
+    .rental-form {
+      margin-top: 25px;
+    }
+
+    .rental-form label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 8px;
+    }
+
+    .rental-form select {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 16px;
+      margin-bottom: 20px;
+    }
+
+    .total-box {
+      background: #f1f5ff;
+      padding: 18px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .total-box p {
+      margin: 5px 0;
+    }
+
+    .total-amount {
+      font-size: 26px;
+      font-weight: bold;
+      color: #1e3a8a;
+    }
+
+    .payment-btn {
+      width: 100%;
+      padding: 14px;
+      font-size: 17px;
+      background: #2563eb;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .payment-btn:hover {
+      background: #1d4ed8;
+    }
+
+    .back-link {
+      display: block;
+      text-align: center;
+      margin-top: 18px;
+      color: #2563eb;
+      text-decoration: none;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- NAVBAR -->
+
+  <nav class="navbar">
+
+    <div class="logo">
+      Home Appliances Rental
+    </div>
+
+    <div class="nav-links">
+
+      <a href="/">Home</a>
+
+      <a href="/products">Products</a>
+
+      <a href="/requests">My Requests</a>
+
+      <a href="/logout">Logout</a>
+
+    </div>
+
+  </nav>
+
+
+  <!-- RENTAL CONTAINER -->
+
+  <div class="rent-container">
+
+    <h1>Rental Details</h1>
+
+
+    <!-- PRODUCT -->
+
+    <div class="rent-product">
+
+      <img
+        src="<%= product.image %>"
+        alt="<%= product.name %>"
+      />
+
+      <h2>
+        <%= product.name %>
+      </h2>
+
+      <p>
+        Category: <%= product.category %>
+      </p>
+
+      <p class="rent-price">
+        ₹<%= product.price %> / month
+      </p>
+
+    </div>
+
+
+    <!-- RENTAL FORM -->
+
+    <form
+      action="/payment/create-order"
+      method="POST"
+      class="rental-form"
+    >
+
+      <input
+        type="hidden"
+        name="product_id"
+        value="<%= product.id %>"
+      />
+
+
+      <!-- RENTAL DURATION -->
+
+      <label for="rental_months">
+        Rental Duration
+      </label>
+
+      <select
+        id="rental_months"
+        name="rental_months"
+        required
+      >
+
+        <option value="1">
+          1 Month
+        </option>
+
+        <option value="2">
+          2 Months
+        </option>
+
+        <option value="3">
+          3 Months
+        </option>
+
+        <option value="4">
+          4 Months
+        </option>
+
+        <option value="5">
+          5 Months
+        </option>
+
+        <option value="6">
+          6 Months
+        </option>
+
+        <option value="7">
+          7 Months
+        </option>
+
+        <option value="8">
+          8 Months
+        </option>
+
+        <option value="9">
+          9 Months
+        </option>
+
+        <option value="10">
+          10 Months
+        </option>
+
+        <option value="11">
+          11 Months
+        </option>
+
+        <option value="12">
+          12 Months
+        </option>
+
+      </select>
+
+
+      <!-- TOTAL -->
+
+      <div class="total-box">
+
+        <p>
+          Monthly Price:
+          ₹<span id="monthlyPrice">
+            <%= product.price %>
+          </span>
+        </p>
+
+        <p>
+          Rental Duration:
+          <span id="selectedMonths">1</span> Month
+        </p>
+
+        <p class="total-amount">
+          Total:
+          ₹<span id="totalAmount">
+            <%= product.price %>
+          </span>
+        </p>
+
+      </div>
+
+
+      <!-- PAYMENT BUTTON -->
+
+      <button
+        type="submit"
+        class="payment-btn"
+      >
+        Proceed to Secure Payment
+      </button>
+
+    </form>
+
+
+    <!-- BACK -->
+
+    <a
+      href="/products"
+      class="back-link"
+    >
+      ← Back to Products
+    </a>
+
+  </div>
+
+
+  <!-- TOTAL CALCULATION -->
+
+  <script>
+
+    const rentalMonths =
+      document.getElementById("rental_months");
+
+    const selectedMonths =
+      document.getElementById("selectedMonths");
+
+    const totalAmount =
+      document.getElementById("totalAmount");
+
+    const monthlyPrice =
+      Number("<%= product.price %>");
+
+
+    rentalMonths.addEventListener(
+      "change",
+      function () {
+
+        const months =
+          Number(this.value);
+
+        const total =
+          monthlyPrice * months;
+
+        selectedMonths.textContent =
+          months;
+
+        totalAmount.textContent =
+          total.toLocaleString("en-IN");
+
+      }
+    );
+
+  </script>
+
+</body>
+
+</html>

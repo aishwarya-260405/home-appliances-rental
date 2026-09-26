@@ -36,12 +36,16 @@
             <p class="price">₹<%= product.price %> / month</p>
             <p class="description">Category: <%= product.category %></p>
 
-            <% if (user) { %>
-              <form action="/requests/add" method="POST">
-                <input type="hidden" name="product_id" value="<%= product.id %>" />
-                <button type="submit" class="btn">Rent Now</button>
-              </form>
-            <% } else { %>
+              <% if (user) { %>
+
+      <a
+        href="/rent/<%= product.id %>"
+        class="btn"
+      >
+        Rent Now
+      </a>
+
+    <% } else { %>
               <a href="/login" class="btn">Login to Rent</a>
             <% } %>
           </div>
