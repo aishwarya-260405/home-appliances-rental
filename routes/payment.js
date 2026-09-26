@@ -9,9 +9,19 @@ const router = express.Router();
 // ======================================================
 
 function formatDate(date) {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
+
+  const year =
+    date.getFullYear();
+
+  const month =
+    String(
+      date.getMonth() + 1
+    ).padStart(2, "0");
+
+  const day =
+    String(
+      date.getDate()
+    ).padStart(2, "0");
 
   return `${year}-${month}-${day}`;
 }
@@ -22,9 +32,12 @@ function formatDate(date) {
 // ======================================================
 
 function addMonths(date, months) {
-  const result = new Date(date);
 
-  const originalDay = result.getDate();
+  const result =
+    new Date(date);
+
+  const originalDay =
+    result.getDate();
 
   result.setDate(1);
 
@@ -32,14 +45,18 @@ function addMonths(date, months) {
     result.getMonth() + months
   );
 
-  const lastDayOfMonth = new Date(
-    result.getFullYear(),
-    result.getMonth() + 1,
-    0
-  ).getDate();
+  const lastDayOfMonth =
+    new Date(
+      result.getFullYear(),
+      result.getMonth() + 1,
+      0
+    ).getDate();
 
   result.setDate(
-    Math.min(originalDay, lastDayOfMonth)
+    Math.min(
+      originalDay,
+      lastDayOfMonth
+    )
   );
 
   return result;
@@ -47,251 +64,415 @@ function addMonths(date, months) {
 
 
 // ======================================================
+// PARSE YYYY-MM-DD AS LOCAL DATE
+// ======================================================
+
+function parseDateString(dateString) {
+
+  const parts =
+    dateString.split("-");
+
+  if (parts.length !== 3) {
+    return null;
+  }
+
+  const year =
+    Number(parts[0]);
+
+  const month =
+    Number(parts[1]);
+
+  const day =
+    Number(parts[2]);
+
+  const date =
+    new Date(
+      year,
+      month - 1,
+      day
+    );
+
+  // Make sure the date is actually valid
+
+  if (
+    date.getFullYear() !== year ||
+    date.getMonth() !== month - 1 ||
+    date.getDate() !== day
+  ) {
+    return null;
+  }
+
+  return date;
+}
+
+
+// ======================================================
 // CREATE RAZORPAY ORDER
 // ======================================================
 
-router.post("/payment/create-order", (req, res) => {
+router.post(
+  "/payment/create-order",
+  (req, res) => {
 
-  if (!req.session.user) {
-    return res.redirect("/login");
-  }
+    if (!req.session.user) {
 
-  const db = req.app.locals.db;
-  const razorpay = req.app.locals.razorpay;
+      return res.redirect(
+        "/login"
+      );
 
-  const userId = req.session.user.id;
-  const productId = req.body.product_id;
-
-  const rentalMonths = parseInt(
-    req.body.rental_months,
-    10
-  );
+    }
 
 
-  // ====================================================
-  // VALIDATE RENTAL DURATION
-  // ====================================================
+    const db =
+      req.app.locals.db;
 
-  if (
-    !Number.isInteger(rentalMonths) ||
-    rentalMonths < 1 ||
-    rentalMonths > 12
-  ) {
-    return res.send("Invalid rental duration");
-  }
+    const razorpay =
+      req.app.locals.razorpay;
 
 
-  // ====================================================
-  // GET PRODUCT
-  // ====================================================
+    const userId =
+      req.session.user.id;
 
-  db.get(
-    "SELECT * FROM products WHERE id = ?",
-    [productId],
-
-    async (err, product) => {
-
-      if (err) {
-        console.error(
-          "Product fetch error:",
-          err
-        );
-
-        return res.send(
-          "Error fetching product"
-        );
-      }
+    const productId =
+      req.body.product_id;
 
 
-      if (!product) {
-        return res.send(
-          "Product not found"
-        );
-      }
+    const rentalMonths =
+      parseInt(
+        req.body.rental_months,
+        10
+      );
 
 
-      // ==================================================
-      // CALCULATE TOTAL
-      // ==================================================
-
-      const totalAmount =
-        product.price * rentalMonths;
-
-      const amountInPaise =
-        totalAmount * 100;
+    const rentalStartDate =
+      req.body.rental_start_date;
 
 
-      try {
+    // ==================================================
+    // VALIDATE RENTAL DURATION
+    // ==================================================
 
-        // ================================================
-        // CREATE RAZORPAY ORDER
-        // ================================================
+    if (
+      !Number.isInteger(
+        rentalMonths
+      ) ||
+      rentalMonths < 1 ||
+      rentalMonths > 12
+    ) {
 
-        const order =
-          await razorpay.orders.create({
+      return res.send(
+        "Invalid rental duration"
+      );
 
-            amount: amountInPaise,
-
-            currency: "INR",
-
-            receipt:
-              `rental_${userId}_${Date.now()}`
-
-          });
-
-
-        console.log(
-          "🔥 RAZORPAY ORDER CREATED:",
-          order.id
-        );
+    }
 
 
-        // ================================================
-        // CREATE RENTAL REQUEST
-        // ================================================
+    // ==================================================
+    // VALIDATE START DATE
+    // ==================================================
 
-        db.run(
-          `INSERT INTO requests
-          (
-            user_id,
-            product_id,
-            rental_months,
-            total_amount,
-            status
-          )
-          VALUES (?, ?, ?, ?, ?)`,
+    if (
+      !rentalStartDate ||
+      !/^\d{4}-\d{2}-\d{2}$/.test(
+        rentalStartDate
+      )
+    ) {
 
-          [
-            userId,
-            productId,
-            rentalMonths,
-            totalAmount,
-            "Payment Pending"
-          ],
+      return res.send(
+        "Invalid rental start date"
+      );
 
-          function (requestErr) {
-
-            if (requestErr) {
-
-              console.error(
-                "Rental request creation error:",
-                requestErr
-              );
-
-              return res.send(
-                "Error creating rental request"
-              );
-            }
+    }
 
 
-            const requestId =
-              this.lastID;
+    const parsedStartDate =
+      parseDateString(
+        rentalStartDate
+      );
 
 
-            console.log(
-              "🔥 RENTAL REQUEST CREATED:",
-              requestId
-            );
+    if (!parsedStartDate) {
+
+      return res.send(
+        "Invalid rental start date"
+      );
+
+    }
 
 
-            // ==========================================
-            // SAVE PAYMENT RECORD
-            // ==========================================
+    // ==================================================
+    // PREVENT PAST START DATE
+    // ==================================================
 
-            db.run(
-              `INSERT INTO payments
-              (
-                request_id,
-                user_id,
-                product_id,
-                amount,
-                currency,
-                razorpay_order_id,
-                status
-              )
-              VALUES (?, ?, ?, ?, ?, ?, ?)`,
+    const today =
+      new Date();
 
-              [
-                requestId,
-                userId,
-                productId,
-                totalAmount,
+    today.setHours(
+      0,
+      0,
+      0,
+      0
+    );
+
+
+    if (
+      parsedStartDate < today
+    ) {
+
+      return res.send(
+        "Rental start date cannot be in the past"
+      );
+
+    }
+
+
+    // ==================================================
+    // GET PRODUCT
+    // ==================================================
+
+    db.get(
+      "SELECT * FROM products WHERE id = ?",
+      [productId],
+
+      async (
+        err,
+        product
+      ) => {
+
+        if (err) {
+
+          console.error(
+            "Product fetch error:",
+            err
+          );
+
+          return res.send(
+            "Error fetching product"
+          );
+
+        }
+
+
+        if (!product) {
+
+          return res.send(
+            "Product not found"
+          );
+
+        }
+
+
+        // ==================================================
+        // CALCULATE TOTAL
+        // ==================================================
+
+        const totalAmount =
+          product.price *
+          rentalMonths;
+
+
+        const amountInPaise =
+          totalAmount * 100;
+
+
+        try {
+
+
+          // ================================================
+          // CREATE RAZORPAY ORDER
+          // ================================================
+
+          const order =
+            await razorpay.orders.create({
+
+              amount:
+                amountInPaise,
+
+              currency:
                 "INR",
-                order.id,
-                "Created"
-              ],
 
-              function (paymentErr) {
+              receipt:
+                `rental_${userId}_${Date.now()}`
 
-                if (paymentErr) {
-
-                  console.error(
-                    "Payment record error:",
-                    paymentErr
-                  );
-
-                  return res.send(
-                    "Error saving payment record"
-                  );
-                }
+            });
 
 
-                console.log(
-                  "🔥 PAYMENT RECORD CREATED:",
-                  this.lastID
+          console.log(
+            "🔥 RAZORPAY ORDER CREATED:",
+            order.id
+          );
+
+
+          // ================================================
+          // CREATE RENTAL REQUEST
+          // ================================================
+
+          db.run(
+
+            `INSERT INTO requests
+            (
+              user_id,
+              product_id,
+              rental_months,
+              total_amount,
+              status,
+              rental_start_date
+            )
+            VALUES (?, ?, ?, ?, ?, ?)`,
+
+            [
+              userId,
+              productId,
+              rentalMonths,
+              totalAmount,
+              "Payment Pending",
+              rentalStartDate
+            ],
+
+            function (
+              requestErr
+            ) {
+
+              if (requestErr) {
+
+                console.error(
+                  "Rental request creation error:",
+                  requestErr
                 );
 
-
-                // ========================================
-                // PAYMENT PAGE
-                // ========================================
-
-                res.render(
-                  "payment",
-                  {
-                    user:
-                      req.session.user,
-
-                    product:
-                      product,
-
-                    rentalMonths:
-                      rentalMonths,
-
-                    totalAmount:
-                      totalAmount,
-
-                    razorpayOrderId:
-                      order.id,
-
-                    razorpayKeyId:
-                      req.app.locals
-                        .razorpayKeyId
-                  }
+                return res.send(
+                  "Error creating rental request"
                 );
 
               }
-            );
 
-          }
-        );
 
-      } catch (error) {
+              const requestId =
+                this.lastID;
 
-        console.error(
-          "Razorpay order creation error:",
-          error
-        );
 
-        return res.send(
-          "Unable to create Razorpay order"
-        );
+              console.log(
+                "🔥 RENTAL REQUEST CREATED:",
+                requestId
+              );
+
+
+              console.log(
+                "📅 SELECTED START DATE:",
+                rentalStartDate
+              );
+
+
+              // ==========================================
+              // SAVE PAYMENT RECORD
+              // ==========================================
+
+              db.run(
+
+                `INSERT INTO payments
+                (
+                  request_id,
+                  user_id,
+                  product_id,
+                  amount,
+                  currency,
+                  razorpay_order_id,
+                  status
+                )
+                VALUES (?, ?, ?, ?, ?, ?, ?)`,
+
+                [
+                  requestId,
+                  userId,
+                  productId,
+                  totalAmount,
+                  "INR",
+                  order.id,
+                  "Created"
+                ],
+
+                function (
+                  paymentErr
+                ) {
+
+                  if (paymentErr) {
+
+                    console.error(
+                      "Payment record error:",
+                      paymentErr
+                    );
+
+                    return res.send(
+                      "Error saving payment record"
+                    );
+
+                  }
+
+
+                  console.log(
+                    "🔥 PAYMENT RECORD CREATED:",
+                    this.lastID
+                  );
+
+
+                  // ========================================
+                  // PAYMENT PAGE
+                  // ========================================
+
+                  res.render(
+                    "payment",
+                    {
+
+                      user:
+                        req.session.user,
+
+                      product:
+                        product,
+
+                      rentalMonths:
+                        rentalMonths,
+
+                      totalAmount:
+                        totalAmount,
+
+                      razorpayOrderId:
+                        order.id,
+
+                      razorpayKeyId:
+                        req.app.locals
+                          .razorpayKeyId
+
+                    }
+                  );
+
+                }
+
+              );
+
+            }
+
+          );
+
+
+        } catch (error) {
+
+          console.error(
+            "Razorpay order creation error:",
+            error
+          );
+
+          return res.send(
+            "Unable to create Razorpay order"
+          );
+
+        }
+
       }
 
-    }
-  );
+    );
 
-});
+  }
+);
 
 
 // ======================================================
@@ -305,8 +486,12 @@ router.post(
     if (!req.session.user) {
 
       return res.status(401).json({
+
         success: false,
-        message: "User not logged in"
+
+        message:
+          "User not logged in"
+
       });
 
     }
@@ -353,13 +538,16 @@ router.post(
     // ==================================================
 
     db.get(
+
       `SELECT
 
         pay.*,
 
         r.rental_months,
 
-        r.total_amount AS rental_total
+        r.total_amount AS rental_total,
+
+        r.rental_start_date
 
        FROM payments pay
 
@@ -376,6 +564,7 @@ router.post(
       ],
 
       (err, paymentRecord) => {
+
 
         if (err) {
 
@@ -415,7 +604,8 @@ router.post(
         // ==================================================
 
         if (
-          paymentRecord.status === "Paid"
+          paymentRecord.status ===
+          "Paid"
         ) {
 
           return res.json({
@@ -430,7 +620,8 @@ router.post(
                 .razorpay_payment_id,
 
             requestId:
-              paymentRecord.request_id,
+              paymentRecord
+                .request_id,
 
             orderId:
               paymentRecord
@@ -504,6 +695,7 @@ router.post(
         // ==================================================
 
         db.run(
+
           `UPDATE payments
 
            SET
@@ -523,7 +715,9 @@ router.post(
             userId
           ],
 
-          function (paymentUpdateErr) {
+          function (
+            paymentUpdateErr
+          ) {
 
             if (paymentUpdateErr) {
 
@@ -548,14 +742,46 @@ router.post(
             // CALCULATE RENTAL DATES
             // ==================================================
 
+            /*
+             * IMPORTANT:
+             *
+             * The start date now comes from
+             * the date selected by the user
+             * on the Rental Details page.
+             */
+
             const rentalStartDate =
-              new Date();
+              parseDateString(
+                paymentRecord
+                  .rental_start_date
+              );
+
+
+            if (!rentalStartDate) {
+
+              console.error(
+                "❌ INVALID STORED RENTAL START DATE:",
+                paymentRecord
+                  .rental_start_date
+              );
+
+              return res.status(500).json({
+
+                success: false,
+
+                message:
+                  "Invalid rental start date"
+
+              });
+
+            }
 
 
             const rentalEndDate =
               addMonths(
                 rentalStartDate,
-                paymentRecord.rental_months
+                paymentRecord
+                  .rental_months
               );
 
 
@@ -576,6 +802,7 @@ router.post(
               startDate
             );
 
+
             console.log(
               "🔥 RENTAL END DATE:",
               endDate
@@ -587,6 +814,7 @@ router.post(
             // ==================================================
 
             db.run(
+
               `UPDATE requests
 
                SET
@@ -606,7 +834,9 @@ router.post(
                 userId
               ],
 
-              function (requestUpdateErr) {
+              function (
+                requestUpdateErr
+              ) {
 
                 if (requestUpdateErr) {
 
@@ -679,9 +909,11 @@ router.post(
                 });
 
               }
+
             );
 
           }
+
         );
 
       }
@@ -737,6 +969,7 @@ router.get(
     // ==================================================
 
     db.get(
+
       `SELECT
 
         r.id AS request_id,
@@ -826,8 +1059,9 @@ router.get(
           );
 
 
-          // Use original request date
-          // for existing bookings.
+          // Existing bookings don't have
+          // a selected start date.
+          // Use their original request date.
 
           const rentalStartDate =
             new Date(
@@ -859,6 +1093,7 @@ router.get(
           // ==============================================
 
           db.run(
+
             `UPDATE requests
 
              SET
@@ -897,10 +1132,12 @@ router.get(
               }
 
             }
+
           );
 
 
           // Update page immediately
+
           booking.rental_start_date =
             startDate;
 

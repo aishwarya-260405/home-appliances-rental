@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>
+    Rental Agreement - Home Appliances Rental
+  </title>
+
+  <link
+    rel="stylesheet"
+    href="/style.css"
+  >
+
+  <style>
+
+    .agreement-container {
+      max-width: 900px;
+      margin: 45px auto;
+      padding: 20px;
+    }
+
+    .agreement-card {
+      background: white;
+      border-radius: 18px;
+      padding: 35px;
+      box-shadow:
+        0 6px 25px
+        rgba(0, 0, 0, 0.12);
+    }
+
+    .agreement-header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .agreement-header h1 {
+      color: #1e3a8a;
+      margin-bottom: 8px;
+    }
+
+    .agreement-header p {
+      color: #6b7280;
+    }
+
+    .summary-box {
+      background: #f1f5ff;
+      border-radius: 12px;
+      padding: 22px;
+      margin-bottom: 30px;
+    }
+
+    .summary-box h2 {
+      color: #1e3a8a;
+      margin-bottom: 18px;
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+    }
+
+    .summary-item {
+      background: white;
+      padding: 14px;
+      border-radius: 8px;
+    }
+
+    .summary-label {
+      display: block;
+      color: #6b7280;
+      font-size: 13px;
+      margin-bottom: 5px;
+    }
+
+    .summary-value {
+      font-weight: bold;
+      color: #1f2937;
+    }
+
+    .agreement-section {
+      margin-bottom: 25px;
+    }
+
+    .agreement-section h2 {
+      color: #1e3a8a;
+      font-size: 20px;
+      margin-bottom: 12px;
+    }
+
+    .agreement-section p {
+      color: #374151;
+      line-height: 1.7;
+    }
+
+    .terms-list {
+      padding-left: 22px;
+      color: #374151;
+      line-height: 1.8;
+    }
+
+    .terms-list li {
+      margin-bottom: 8px;
+    }
+
+    .agreement-box {
+      background: #f8fafc;
+      border: 1px solid #d1d5db;
+      border-radius: 12px;
+      padding: 20px;
+      margin-top: 30px;
+    }
+
+    .agreement-checkbox {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      cursor: pointer;
+      color: #374151;
+      line-height: 1.6;
+    }
+
+    .agreement-checkbox input {
+      width: 18px;
+      height: 18px;
+      margin-top: 3px;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .payment-btn {
+      width: 100%;
+      margin-top: 20px;
+      padding: 15px;
+      border: none;
+      border-radius: 9px;
+      background: #2563eb;
+      color: white;
+      font-size: 17px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+
+    .payment-btn:hover {
+      background: #1d4ed8;
+    }
+
+    .payment-btn:disabled {
+      background: #9ca3af;
+      cursor: not-allowed;
+    }
+
+    .back-link {
+      display: block;
+      text-align: center;
+      margin-top: 18px;
+      color: #2563eb;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .secure-note {
+      text-align: center;
+      color: #6b7280;
+      font-size: 13px;
+      margin-top: 12px;
+    }
+
+    @media (max-width: 650px) {
+
+      .agreement-card {
+        padding: 22px;
+      }
+
+      .summary-grid {
+        grid-template-columns: 1fr;
+      }
+
+    }
+
+  </style>
+
+</head>
+
+
+<body>
+
+
+  <!-- ==========================================
+       NAVBAR
+  ========================================== -->
+
+  <nav class="navbar">
+
+    <div class="logo">
+      Home Appliances Rental
+    </div>
+
+    <div class="nav-links">
+
+      <a href="/">
+        Home
+      </a>
+
+      <a href="/products">
+        Products
+      </a>
+
+      <a href="/requests">
+        My Requests
+      </a>
+
+      <a href="/logout">
+        Logout
+      </a>
+
+    </div>
+
+  </nav>
+
+
+  <!-- ==========================================
+       AGREEMENT
+  ========================================== -->
+
+  <div class="agreement-container">
+
+    <div class="agreement-card">
+
+
+      <!-- HEADER -->
+
+      <div class="agreement-header">
+
+        <h1>
+          Rental Agreement
+        </h1>
+
+        <p>
+          Please review the rental details and
+          terms before proceeding to payment.
+        </p>
+
+      </div>
+
+
+      <!-- ======================================
+           RENTAL SUMMARY
+      ======================================= -->
+
+      <div class="summary-box">
+
+        <h2>
+          Rental Summary
+        </h2>
+
+
+        <div class="summary-grid">
+
+
+          <div class="summary-item">
+
+            <span class="summary-label">
+              Customer
+            </span>
+
+            <span class="summary-value">
+              <%= user.username %>
+            </span>
+
+          </div>
+
+
+          <div class="summary-item">
+
+            <span class="summary-label">
+              Appliance
+            </span>
+
+            <span class="summary-value">
+              <%= product.name %>
+            </span>
+
+          </div>
+
+
+          <div class="summary-item">
+
+            <span class="summary-label">
+              Category
+            </span>
+
+            <span class="summary-value">
+              <%= product.category %>
+            </span>
+
+          </div>
+
+
+          <div class="summary-item">
+
+            <span class="summary-label">
+              Monthly Rental Price
+            </span>
+
+            <span class="summary-value">
+              ₹<%= product.price.toLocaleString("en-IN") %>
+            </span>
+
+          </div>
+
+
+          <div class="summary-item">
+
+            <span class="summary-label">
+              Rental Start Date
+            </span>
+
+            <span class="summary-value">
+              <%= rentalStartDate %>
+            </span>
+
+          </div>
+
+
+          <div class="summary-item">
+
+            <span class="summary-label">
+              Rental Duration
+            </span>
+
+            <span class="summary-value">
+
+              <%= rentalMonths %>
+
+              <%= rentalMonths == 1
+                ? "Month"
+                : "Months"
+              %>
+
+            </span>
+
+          </div>
+
+
+          <div class="summary-item">
+
+            <span class="summary-label">
+              Rental End Date
+            </span>
+
+            <span class="summary-value">
+              <%= rentalEndDate %>
+            </span>
+
+          </div>
+
+
+          <div class="summary-item">
+
+            <span class="summary-label">
+              Total Rental Amount
+            </span>
+
+            <span class="summary-value">
+
+              ₹<%= totalAmount.toLocaleString("en-IN") %>
+
+            </span>
+
+          </div>
+
+
+        </div>
+
+      </div>
+
+
+      <!-- ======================================
+           AGREEMENT INTRODUCTION
+      ======================================= -->
+
+      <div class="agreement-section">
+
+        <h2>
+          Rental Agreement
+        </h2>
+
+        <p>
+
+          This rental agreement records the
+          rental details selected by the customer
+          for the home appliance shown above.
+
+          By proceeding with the rental, the
+          customer confirms that the provided
+          rental information has been reviewed
+          and agrees to the terms listed below.
+
+        </p>
+
+      </div>
+
+
+      <!-- ======================================
+           TERMS
+      ======================================= -->
+
+      <div class="agreement-section">
+
+        <h2>
+          Terms and Conditions
+        </h2>
+
+        <ol class="terms-list">
+
+          <li>
+            The appliance is rented for the
+            duration selected by the customer.
+          </li>
+
+          <li>
+            The total rental amount is calculated
+            based on the monthly rental price and
+            selected rental duration.
+          </li>
+
+          <li>
+            The customer is responsible for
+            providing accurate rental information.
+          </li>
+
+          <li>
+            The customer agrees to use the
+            appliance responsibly and only for
+            its intended purpose.
+          </li>
+
+          <li>
+            The appliance should be returned or
+            made available for return at the end
+            of the agreed rental period.
+          </li>
+
+          <li>
+            Any damage caused by misuse or
+            negligence may be subject to applicable
+            rental policies.
+          </li>
+
+          <li>
+            Payment must be completed through the
+            available secure payment process before
+            the rental is confirmed.
+          </li>
+
+          <li>
+            The rental status and payment details
+            can be viewed through the customer's
+            rental request section.
+          </li>
+
+          <li>
+            The customer agrees to provide truthful
+            and accurate information during the
+            rental process.
+          </li>
+
+        </ol>
+
+      </div>
+
+
+      <!-- ======================================
+           AGREEMENT CHECKBOX + PAYMENT
+      ======================================= -->
+
+      <div class="agreement-box">
+
+        <label class="agreement-checkbox">
+
+          <input
+            type="checkbox"
+            id="agreeCheckbox"
+          >
+
+          <span>
+
+            I have read and understood the rental
+            details and terms and conditions above.
+            I agree to proceed with this rental
+            and continue to secure payment.
+
+          </span>
+
+        </label>
+
+
+        <!-- ====================================
+             PAYMENT FORM
+        ===================================== -->
+
+        <form
+          action="/payment/create-order"
+          method="POST"
+          id="paymentForm"
+        >
+
+          <input
+            type="hidden"
+            name="product_id"
+            value="<%= product.id %>"
+          >
+
+          <input
+            type="hidden"
+            name="rental_start_date"
+            value="<%= rentalStartDateRaw %>"
+          >
+
+          <input
+            type="hidden"
+            name="rental_months"
+            value="<%= rentalMonths %>"
+          >
+
+
+          <button
+            type="submit"
+            class="payment-btn"
+            id="paymentButton"
+            disabled
+          >
+
+            Agree & Proceed to Secure Payment
+
+          </button>
+
+        </form>
+
+
+        <p class="secure-note">
+
+          🔒 Secure payment powered by Razorpay
+
+        </p>
+
+      </div>
+
+
+      <!-- BACK -->
+
+      <a
+        href="/rent/<%= product.id %>"
+        class="back-link"
+      >
+
+        ← Back to Rental Details
+
+      </a>
+
+
+    </div>
+
+  </div>
+
+
+  <!-- ==========================================
+       CHECKBOX SCRIPT
+  ========================================== -->
+
+  <script>
+
+    const agreeCheckbox =
+      document.getElementById(
+        "agreeCheckbox"
+      );
+
+    const paymentButton =
+      document.getElementById(
+        "paymentButton"
+      );
+
+
+    agreeCheckbox.addEventListener(
+      "change",
+      function () {
+
+        paymentButton.disabled =
+          !this.checked;
+
+      }
+    );
+
+  </script>
+
+
+</body>
+
+</html>

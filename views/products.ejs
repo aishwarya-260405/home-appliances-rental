@@ -1,57 +1,928 @@
 <!DOCTYPE html>
+
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Products - Home Appliances Rental</title>
-  <link rel="stylesheet" href="/style.css" />
+
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>
+    Products - Home Appliances Rental
+  </title>
+
+  <link
+    rel="stylesheet"
+    href="/style.css"
+  >
+
+
+  <style>
+
+    /* ==========================================
+       PRODUCTS SECTION
+    ========================================== */
+
+    .products-section {
+
+      max-width: 1200px;
+
+      margin: 50px auto;
+
+      padding: 20px;
+
+    }
+
+
+    .products-section h1 {
+
+      text-align: center;
+
+      color: #1e3a8a;
+
+      margin-bottom: 30px;
+
+    }
+
+
+    /* ==========================================
+       FILTER SECTION
+    ========================================== */
+
+    .filter-container {
+
+      background: white;
+
+      padding: 22px;
+
+      border-radius: 15px;
+
+      box-shadow:
+        0 5px 20px
+        rgba(0, 0, 0, 0.10);
+
+      margin-bottom: 30px;
+
+    }
+
+
+    .filter-title {
+
+      color: #1e3a8a;
+
+      font-size: 20px;
+
+      font-weight: bold;
+
+      margin-bottom: 15px;
+
+    }
+
+
+    .filter-row {
+
+      display: grid;
+
+      grid-template-columns:
+        2fr 1fr 1fr;
+
+      gap: 15px;
+
+    }
+
+
+    .filter-group {
+
+      display: flex;
+
+      flex-direction: column;
+
+      gap: 7px;
+
+    }
+
+
+    .filter-group label {
+
+      font-weight: bold;
+
+      color: #374151;
+
+      font-size: 14px;
+
+    }
+
+
+    .filter-input,
+    .filter-select {
+
+      width: 100%;
+
+      padding: 12px 14px;
+
+      border: 1px solid #d1d5db;
+
+      border-radius: 8px;
+
+      font-size: 15px;
+
+      box-sizing: border-box;
+
+      outline: none;
+
+    }
+
+
+    .filter-input:focus,
+    .filter-select:focus {
+
+      border-color: #2563eb;
+
+      box-shadow:
+        0 0 0 2px
+        rgba(37, 99, 235, 0.10);
+
+    }
+
+
+    /* ==========================================
+       RESULT COUNT
+    ========================================== */
+
+    .result-info {
+
+      margin-top: 18px;
+
+      color: #6b7280;
+
+      font-size: 14px;
+
+    }
+
+
+    .result-count {
+
+      font-weight: bold;
+
+      color: #2563eb;
+
+    }
+
+
+    /* ==========================================
+       PRODUCTS GRID
+    ========================================== */
+
+    .products-grid {
+
+      display: grid;
+
+      grid-template-columns:
+        repeat(3, 1fr);
+
+      gap: 25px;
+
+    }
+
+
+    /* ==========================================
+       PRODUCT CARD
+    ========================================== */
+
+    .product-card {
+
+      background: white;
+
+      border-radius: 15px;
+
+      overflow: hidden;
+
+      box-shadow:
+        0 5px 20px
+        rgba(0, 0, 0, 0.10);
+
+      transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+
+    }
+
+
+    .product-card:hover {
+
+      transform:
+        translateY(-5px);
+
+      box-shadow:
+        0 10px 25px
+        rgba(0, 0, 0, 0.15);
+
+    }
+
+
+    .product-image {
+
+      width: 100%;
+
+      height: 220px;
+
+      object-fit: cover;
+
+      display: block;
+
+    }
+
+
+    .product-info {
+
+      padding: 20px;
+
+    }
+
+
+    .product-info h2 {
+
+      color: #1e3a8a;
+
+      margin-bottom: 10px;
+
+    }
+
+
+    .price {
+
+      font-size: 19px;
+
+      font-weight: bold;
+
+      color: #2563eb;
+
+      margin-bottom: 8px;
+
+    }
+
+
+    .description {
+
+      color: #555;
+
+      margin-bottom: 18px;
+
+    }
+
+
+    /* ==========================================
+       RENT BUTTON
+    ========================================== */
+
+    .btn {
+
+      display: inline-block;
+
+      width: 100%;
+
+      padding: 12px;
+
+      box-sizing: border-box;
+
+      text-align: center;
+
+      background: #2563eb;
+
+      color: white;
+
+      text-decoration: none;
+
+      border-radius: 8px;
+
+      font-weight: bold;
+
+      transition:
+        background 0.2s ease;
+
+    }
+
+
+    .btn:hover {
+
+      background: #1d4ed8;
+
+    }
+
+
+    /* ==========================================
+       NO RESULTS
+    ========================================== */
+
+    .no-results {
+
+      display: none;
+
+      text-align: center;
+
+      background: white;
+
+      padding: 40px;
+
+      border-radius: 15px;
+
+      box-shadow:
+        0 5px 20px
+        rgba(0, 0, 0, 0.10);
+
+      color: #6b7280;
+
+    }
+
+
+    .no-results h2 {
+
+      color: #1e3a8a;
+
+      margin-bottom: 10px;
+
+    }
+
+
+    /* ==========================================
+       RESPONSIVE DESIGN
+    ========================================== */
+
+    @media (max-width: 900px) {
+
+      .products-grid {
+
+        grid-template-columns:
+          repeat(2, 1fr);
+
+      }
+
+
+      .filter-row {
+
+        grid-template-columns: 1fr 1fr;
+
+      }
+
+    }
+
+
+    @media (max-width: 600px) {
+
+      .products-grid {
+
+        grid-template-columns: 1fr;
+
+      }
+
+
+      .filter-row {
+
+        grid-template-columns: 1fr;
+
+      }
+
+
+      .products-section {
+
+        margin-top: 30px;
+
+      }
+
+    }
+
+  </style>
+
 </head>
+
+
 <body>
+
+
+  <!-- ==========================================
+       NAVBAR
+  ========================================== -->
+
   <nav class="navbar">
-    <div class="logo">Home Appliances Rental</div>
-    <div class="nav-links">
-      <a href="/">Home</a>
-      <a href="/products">Products</a>
 
-      <% if (user) { %>
-        <a href="/requests">My Requests</a>
-        <a href="/logout">Logout</a>
-      <% } else { %>
-        <a href="/login">Login</a>
-        <a href="/register">Register</a>
-      <% } %>
+    <div class="logo">
+      Home Appliances Rental
     </div>
-  </nav>
 
-  <section class="products-section">
-    <h1>Available Appliances</h1>
 
-    <div class="products-grid">
-      <% products.forEach(product => { %>
-        <div class="product-card">
-          <img src="<%= product.image %>" alt="<%= product.name %>" class="product-image" />
+    <div class="nav-links">
 
-          <div class="product-info">
-            <h2><%= product.name %></h2>
-            <p class="price">₹<%= product.price %> / month</p>
-            <p class="description">Category: <%= product.category %></p>
-
-              <% if (user) { %>
-
-      <a
-        href="/rent/<%= product.id %>"
-        class="btn"
-      >
-        Rent Now
+      <a href="/">
+        Home
       </a>
 
-    <% } else { %>
-              <a href="/login" class="btn">Login to Rent</a>
-            <% } %>
-          </div>
-        </div>
-      <% }) %>
+      <a href="/products">
+        Products
+      </a>
+
+
+      <% if (user) { %>
+
+        <a href="/requests">
+          My Requests
+        </a>
+
+        <a href="/logout">
+          Logout
+        </a>
+
+      <% } else { %>
+
+        <a href="/login">
+          Login
+        </a>
+
+        <a href="/register">
+          Register
+        </a>
+
+      <% } %>
+
     </div>
+
+  </nav>
+
+
+  <!-- ==========================================
+       PRODUCTS
+  ========================================== -->
+
+  <section class="products-section">
+
+
+    <h1>
+      Available Appliances
+    </h1>
+
+
+    <!-- ========================================
+         SEARCH & FILTER
+    ========================================= -->
+
+    <div class="filter-container">
+
+
+      <div class="filter-title">
+        Find Your Appliance
+      </div>
+
+
+      <div class="filter-row">
+
+
+        <!-- SEARCH -->
+
+        <div class="filter-group">
+
+          <label for="searchInput">
+            Search Appliance
+          </label>
+
+          <input
+            type="text"
+            id="searchInput"
+            class="filter-input"
+            placeholder="Search by appliance name..."
+          >
+
+        </div>
+
+
+        <!-- CATEGORY -->
+
+        <div class="filter-group">
+
+          <label for="categoryFilter">
+            Category
+          </label>
+
+          <select
+            id="categoryFilter"
+            class="filter-select"
+          >
+
+            <option value="all">
+              All Categories
+            </option>
+
+
+            <% [...new Set(
+              products.map(product => product.category)
+            )].sort().forEach(category => { %>
+
+              <option value="<%= category.toLowerCase() %>">
+
+                <%= category %>
+
+              </option>
+
+            <% }) %>
+
+          </select>
+
+        </div>
+
+
+        <!-- PRICE SORT -->
+
+        <div class="filter-group">
+
+          <label for="priceSort">
+            Sort by Price
+          </label>
+
+          <select
+            id="priceSort"
+            class="filter-select"
+          >
+
+            <option value="default">
+              Default
+            </option>
+
+            <option value="low-high">
+              Low to High
+            </option>
+
+            <option value="high-low">
+              High to Low
+            </option>
+
+          </select>
+
+        </div>
+
+
+      </div>
+
+
+      <div class="result-info">
+
+        Showing
+        <span
+          id="resultCount"
+          class="result-count"
+        >
+          <%= products.length %>
+        </span>
+
+        appliance<%= products.length !== 1 ? "s" : "" %>
+
+      </div>
+
+
+    </div>
+
+
+    <!-- ========================================
+         PRODUCT GRID
+    ========================================= -->
+
+    <div
+      class="products-grid"
+      id="productsGrid"
+    >
+
+
+      <% products.forEach(product => { %>
+
+
+        <div
+          class="product-card"
+          data-name="<%= product.name.toLowerCase() %>"
+          data-category="<%= product.category.toLowerCase() %>"
+          data-price="<%= product.price %>"
+        >
+
+
+          <!-- PRODUCT IMAGE -->
+
+          <img
+            src="<%= product.image %>"
+            alt="<%= product.name %>"
+            class="product-image"
+          >
+
+
+          <div class="product-info">
+
+
+            <!-- PRODUCT NAME -->
+
+            <h2>
+
+              <%= product.name %>
+
+            </h2>
+
+
+            <!-- PRICE -->
+
+            <p class="price">
+
+              ₹<%= product.price.toLocaleString("en-IN") %>
+              / month
+
+            </p>
+
+
+            <!-- CATEGORY -->
+
+            <p class="description">
+
+              Category:
+              <%= product.category %>
+
+            </p>
+
+
+            <!-- RENT BUTTON -->
+
+            <a
+  href="/products/<%= product.id %>"
+  class="btn"
+>
+  View Details
+</a>
+
+          </div>
+
+
+        </div>
+
+
+      <% }) %>
+
+
+    </div>
+
+
+    <!-- ========================================
+         NO RESULTS
+    ========================================= -->
+
+    <div
+      id="noResults"
+      class="no-results"
+    >
+
+      <h2>
+        No Appliances Found
+      </h2>
+
+      <p>
+        Try changing your search or category filter.
+      </p>
+
+    </div>
+
+
   </section>
+
+
+  <!-- ==========================================
+       SEARCH / FILTER JAVASCRIPT
+  ========================================== -->
+
+  <script>
+
+    const searchInput =
+      document.getElementById(
+        "searchInput"
+      );
+
+
+    const categoryFilter =
+      document.getElementById(
+        "categoryFilter"
+      );
+
+
+    const priceSort =
+      document.getElementById(
+        "priceSort"
+      );
+
+
+    const productsGrid =
+      document.getElementById(
+        "productsGrid"
+      );
+
+
+    const resultCount =
+      document.getElementById(
+        "resultCount"
+      );
+
+
+    const noResults =
+      document.getElementById(
+        "noResults"
+      );
+
+
+    let productCards =
+      Array.from(
+        document.querySelectorAll(
+          ".product-card"
+        )
+      );
+
+
+    // ==========================================
+    // FILTER PRODUCTS
+    // ==========================================
+
+    function filterProducts() {
+
+      const searchTerm =
+        searchInput.value
+          .trim()
+          .toLowerCase();
+
+
+      const selectedCategory =
+        categoryFilter.value;
+
+
+      let visibleCards =
+        productCards.filter(
+          card => {
+
+            const productName =
+              card.dataset.name;
+
+
+            const productCategory =
+              card.dataset.category;
+
+
+            const matchesSearch =
+              productName.includes(
+                searchTerm
+              );
+
+
+            const matchesCategory =
+              selectedCategory === "all" ||
+              productCategory ===
+                selectedCategory;
+
+
+            return (
+              matchesSearch &&
+              matchesCategory
+            );
+
+          }
+        );
+
+
+      // ========================================
+      // SORT BY PRICE
+      // ========================================
+
+      const sortValue =
+        priceSort.value;
+
+
+      if (sortValue !== "default") {
+
+        visibleCards.sort(
+          (a, b) => {
+
+            const priceA =
+              Number(
+                a.dataset.price
+              );
+
+
+            const priceB =
+              Number(
+                b.dataset.price
+              );
+
+
+            if (
+              sortValue ===
+              "low-high"
+            ) {
+
+              return priceA - priceB;
+
+            }
+
+
+            if (
+              sortValue ===
+              "high-low"
+            ) {
+
+              return priceB - priceA;
+
+            }
+
+
+            return 0;
+
+          }
+        );
+
+      }
+
+
+      // ========================================
+      // CLEAR GRID
+      // ========================================
+
+      productsGrid.innerHTML = "";
+
+
+      // ========================================
+      // SHOW FILTERED PRODUCTS
+      // ========================================
+
+      visibleCards.forEach(
+        card => {
+
+          productsGrid.appendChild(
+            card
+          );
+
+        }
+      );
+
+
+      // ========================================
+      // UPDATE COUNT
+      // ========================================
+
+      resultCount.textContent =
+        visibleCards.length;
+
+
+      // ========================================
+      // NO RESULTS MESSAGE
+      // ========================================
+
+      if (
+        visibleCards.length === 0
+      ) {
+
+        noResults.style.display =
+          "block";
+
+        productsGrid.style.display =
+          "none";
+
+      } else {
+
+        noResults.style.display =
+          "none";
+
+        productsGrid.style.display =
+          "grid";
+
+      }
+
+    }
+
+
+    // ==========================================
+    // EVENT LISTENERS
+    // ==========================================
+
+    searchInput.addEventListener(
+      "input",
+      filterProducts
+    );
+
+
+    categoryFilter.addEventListener(
+      "change",
+      filterProducts
+    );
+
+
+    priceSort.addEventListener(
+      "change",
+      filterProducts
+    );
+
+
+  </script>
+
+
 </body>
+
 </html>

@@ -295,6 +295,9 @@ const requestRoutes = require("./routes/requests");
 
 const paymentRoutes = require("./routes/payment");
 
+const agreementRoutes = require("./routes/agreement");
+
+
 app.use("/", authRoutes);
 
 app.use("/", productRoutes);
@@ -302,6 +305,8 @@ app.use("/", productRoutes);
 app.use("/", requestRoutes);
 
 app.use("/", paymentRoutes);
+
+app.use("/", agreementRoutes);
 
 console.log("🔥 REQUEST ROUTES REGISTERED");
 

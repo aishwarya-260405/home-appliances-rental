@@ -1,7 +1,9 @@
 <!DOCTYPE html>
+
 <html lang="en">
 
 <head>
+
   <meta charset="UTF-8" />
 
   <meta
@@ -16,8 +18,9 @@
   <link rel="stylesheet" href="/style.css" />
 
   <style>
+
     .rent-container {
-      max-width: 600px;
+      max-width: 650px;
       margin: 50px auto;
       background: white;
       padding: 35px;
@@ -33,7 +36,7 @@
 
     .rent-product {
       text-align: center;
-      margin-bottom: 25px;
+      margin-bottom: 30px;
     }
 
     .rent-product img {
@@ -59,19 +62,58 @@
       margin-top: 25px;
     }
 
+    .form-group {
+      margin-bottom: 20px;
+    }
+
     .rental-form label {
       display: block;
       font-weight: bold;
       margin-bottom: 8px;
+      color: #374151;
     }
 
-    .rental-form select {
+    .rental-form select,
+    .rental-form input[type="date"] {
       width: 100%;
       padding: 12px;
       border: 1px solid #ccc;
       border-radius: 8px;
       font-size: 16px;
+      box-sizing: border-box;
+      background: white;
+    }
+
+    .rental-form select:focus,
+    .rental-form input[type="date"]:focus {
+      outline: none;
+      border-color: #2563eb;
+      box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.10);
+    }
+
+    .date-note {
+      margin-top: 6px;
+      color: #6b7280;
+      font-size: 13px;
+    }
+
+    .end-date-box {
+      background: #f8fafc;
+      border: 1px solid #dbeafe;
+      padding: 15px;
+      border-radius: 10px;
       margin-bottom: 20px;
+    }
+
+    .end-date-box p {
+      margin: 5px 0;
+      color: #374151;
+    }
+
+    .end-date {
+      font-weight: bold;
+      color: #1e3a8a;
+      font-size: 17px;
     }
 
     .total-box {
@@ -83,7 +125,8 @@
     }
 
     .total-box p {
-      margin: 5px 0;
+      margin: 7px 0;
+      color: #374151;
     }
 
     .total-amount {
@@ -101,10 +144,19 @@
       border: none;
       border-radius: 8px;
       cursor: pointer;
+      font-weight: bold;
+      transition: background 0.2s ease;
     }
 
     .payment-btn:hover {
       background: #1d4ed8;
+    }
+
+    .secure-note {
+      text-align: center;
+      margin-top: 12px;
+      color: #6b7280;
+      font-size: 13px;
     }
 
     .back-link {
@@ -114,12 +166,31 @@
       color: #2563eb;
       text-decoration: none;
     }
+
+    .back-link:hover {
+      text-decoration: underline;
+    }
+
+    @media (max-width: 700px) {
+
+      .rent-container {
+        margin: 30px 15px;
+        padding: 25px;
+      }
+
+    }
+
   </style>
+
 </head>
+
 
 <body>
 
-  <!-- NAVBAR -->
+
+  <!-- ==========================================
+       NAVBAR
+  ========================================== -->
 
   <nav class="navbar">
 
@@ -129,27 +200,42 @@
 
     <div class="nav-links">
 
-      <a href="/">Home</a>
+      <a href="/">
+        Home
+      </a>
 
-      <a href="/products">Products</a>
+      <a href="/products">
+        Products
+      </a>
 
-      <a href="/requests">My Requests</a>
+      <a href="/requests">
+        My Requests
+      </a>
 
-      <a href="/logout">Logout</a>
+      <a href="/logout">
+        Logout
+      </a>
 
     </div>
 
   </nav>
 
 
-  <!-- RENTAL CONTAINER -->
+  <!-- ==========================================
+       RENTAL CONTAINER
+  ========================================== -->
 
   <div class="rent-container">
 
-    <h1>Rental Details</h1>
+
+    <h1>
+      Rental Details
+    </h1>
 
 
-    <!-- PRODUCT -->
+    <!-- ========================================
+         PRODUCT
+    ========================================= -->
 
     <div class="rent-product">
 
@@ -163,23 +249,32 @@
       </h2>
 
       <p>
-        Category: <%= product.category %>
+        Category:
+        <%= product.category %>
       </p>
 
       <p class="rent-price">
-        ₹<%= product.price %> / month
+
+        ₹<%= product.price.toLocaleString("en-IN") %>
+        / month
+
       </p>
 
     </div>
 
 
-    <!-- RENTAL FORM -->
+    <!-- ========================================
+         RENTAL FORM
+    ========================================= -->
 
     <form
-      action="/payment/create-order"
-      method="POST"
-      class="rental-form"
-    >
+  action="/agreement"
+  method="POST"
+  class="rental-form"
+>
+
+
+      <!-- PRODUCT ID -->
 
       <input
         type="hidden"
@@ -188,156 +283,398 @@
       />
 
 
-      <!-- RENTAL DURATION -->
+      <!-- ======================================
+           START DATE
+      ======================================= -->
 
-      <label for="rental_months">
-        Rental Duration
-      </label>
+      <div class="form-group">
 
-      <select
-        id="rental_months"
-        name="rental_months"
-        required
-      >
+        <label for="rental_start_date">
 
-        <option value="1">
-          1 Month
-        </option>
+          Rental Start Date
 
-        <option value="2">
-          2 Months
-        </option>
+        </label>
 
-        <option value="3">
-          3 Months
-        </option>
+        <input
+          type="date"
+          id="rental_start_date"
+          name="rental_start_date"
+          required
+        />
 
-        <option value="4">
-          4 Months
-        </option>
+        <div class="date-note">
 
-        <option value="5">
-          5 Months
-        </option>
+          Select the date on which you want
+          your rental to begin.
 
-        <option value="6">
-          6 Months
-        </option>
+        </div>
 
-        <option value="7">
-          7 Months
-        </option>
-
-        <option value="8">
-          8 Months
-        </option>
-
-        <option value="9">
-          9 Months
-        </option>
-
-        <option value="10">
-          10 Months
-        </option>
-
-        <option value="11">
-          11 Months
-        </option>
-
-        <option value="12">
-          12 Months
-        </option>
-
-      </select>
+      </div>
 
 
-      <!-- TOTAL -->
+      <!-- ======================================
+           RENTAL DURATION
+      ======================================= -->
 
-      <div class="total-box">
+      <div class="form-group">
+
+        <label for="rental_months">
+
+          Rental Duration
+
+        </label>
+
+        <select
+          id="rental_months"
+          name="rental_months"
+          required
+        >
+
+          <option value="1">
+            1 Month
+          </option>
+
+          <option value="2">
+            2 Months
+          </option>
+
+          <option value="3">
+            3 Months
+          </option>
+
+          <option value="4">
+            4 Months
+          </option>
+
+          <option value="5">
+            5 Months
+          </option>
+
+          <option value="6">
+            6 Months
+          </option>
+
+          <option value="7">
+            7 Months
+          </option>
+
+          <option value="8">
+            8 Months
+          </option>
+
+          <option value="9">
+            9 Months
+          </option>
+
+          <option value="10">
+            10 Months
+          </option>
+
+          <option value="11">
+            11 Months
+          </option>
+
+          <option value="12">
+            12 Months
+          </option>
+
+        </select>
+
+      </div>
+
+
+      <!-- ======================================
+           END DATE PREVIEW
+      ======================================= -->
+
+      <div class="end-date-box">
 
         <p>
-          Monthly Price:
-          ₹<span id="monthlyPrice">
-            <%= product.price %>
-          </span>
+          Expected Rental End Date:
         </p>
 
-        <p>
-          Rental Duration:
-          <span id="selectedMonths">1</span> Month
-        </p>
-
-        <p class="total-amount">
-          Total:
-          ₹<span id="totalAmount">
-            <%= product.price %>
-          </span>
+        <p
+          class="end-date"
+          id="endDate"
+        >
+          -
         </p>
 
       </div>
 
 
-      <!-- PAYMENT BUTTON -->
+      <!-- ======================================
+           TOTAL
+      ======================================= -->
+
+      <div class="total-box">
+
+        <p>
+
+          Monthly Price:
+
+          ₹<span id="monthlyPrice">
+
+            <%= product.price.toLocaleString("en-IN") %>
+
+          </span>
+
+        </p>
+
+
+        <p>
+
+          Rental Duration:
+
+          <span id="selectedMonths">
+            1
+          </span>
+
+          Month
+
+        </p>
+
+
+        <p class="total-amount">
+
+          Total:
+
+          ₹<span id="totalAmount">
+
+            <%= product.price.toLocaleString("en-IN") %>
+
+          </span>
+
+        </p>
+
+      </div>
+
+
+      <!-- ======================================
+           PAYMENT BUTTON
+      ======================================= -->
 
       <button
         type="submit"
         class="payment-btn"
       >
+
         Proceed to Secure Payment
+
       </button>
+
+
+      <p class="secure-note">
+
+        🔒 Secure payment powered by Razorpay
+
+      </p>
+
 
     </form>
 
 
-    <!-- BACK -->
+    <!-- ========================================
+         BACK
+    ========================================= -->
 
     <a
-      href="/products"
+      href="/products/<%= product.id %>"
       class="back-link"
     >
-      ← Back to Products
+
+      ← Back to Product Details
+
     </a>
+
 
   </div>
 
 
-  <!-- TOTAL CALCULATION -->
+  <!-- ==========================================
+       JAVASCRIPT
+  ========================================== -->
 
   <script>
 
     const rentalMonths =
-      document.getElementById("rental_months");
+      document.getElementById(
+        "rental_months"
+      );
+
+
+    const startDate =
+      document.getElementById(
+        "rental_start_date"
+      );
+
 
     const selectedMonths =
-      document.getElementById("selectedMonths");
+      document.getElementById(
+        "selectedMonths"
+      );
+
 
     const totalAmount =
-      document.getElementById("totalAmount");
+      document.getElementById(
+        "totalAmount"
+      );
+
+
+    const endDate =
+      document.getElementById(
+        "endDate"
+      );
+
 
     const monthlyPrice =
-      Number("<%= product.price %>");
+      Number(
+        "<%= product.price %>"
+      );
 
+
+    // ==========================================
+    // TODAY'S DATE
+    // ==========================================
+
+    const today =
+      new Date();
+
+
+    const year =
+      today.getFullYear();
+
+
+    const month =
+      String(
+        today.getMonth() + 1
+      ).padStart(2, "0");
+
+
+    const day =
+      String(
+        today.getDate()
+      ).padStart(2, "0");
+
+
+    const todayString =
+      `${year}-${month}-${day}`;
+
+
+    startDate.min =
+      todayString;
+
+
+    // Default start date = today
+
+    startDate.value =
+      todayString;
+
+
+    // ==========================================
+    // FORMAT DATE
+    // ==========================================
+
+    function formatDate(date) {
+
+      return date.toLocaleDateString(
+        "en-IN",
+        {
+          day: "2-digit",
+          month: "short",
+          year: "numeric"
+        }
+      );
+
+    }
+
+
+    // ==========================================
+    // UPDATE RENTAL DETAILS
+    // ==========================================
+
+    function updateRentalDetails() {
+
+      const months =
+        Number(
+          rentalMonths.value
+        );
+
+
+      const total =
+        monthlyPrice * months;
+
+
+      // Update duration
+
+      selectedMonths.textContent =
+        months;
+
+
+      // Update total
+
+      totalAmount.textContent =
+        total.toLocaleString(
+          "en-IN"
+        );
+
+
+      // ========================================
+      // CALCULATE END DATE
+      // ========================================
+
+      if (startDate.value) {
+
+        const start =
+          new Date(
+            startDate.value + "T00:00:00"
+          );
+
+
+        const end =
+          new Date(start);
+
+
+        end.setMonth(
+          end.getMonth() + months
+        );
+
+
+        endDate.textContent =
+          formatDate(end);
+
+      } else {
+
+        endDate.textContent =
+          "-";
+
+      }
+
+    }
+
+
+    // ==========================================
+    // EVENTS
+    // ==========================================
 
     rentalMonths.addEventListener(
       "change",
-      function () {
-
-        const months =
-          Number(this.value);
-
-        const total =
-          monthlyPrice * months;
-
-        selectedMonths.textContent =
-          months;
-
-        totalAmount.textContent =
-          total.toLocaleString("en-IN");
-
-      }
+      updateRentalDetails
     );
 
+
+    startDate.addEventListener(
+      "change",
+      updateRentalDetails
+    );
+
+
+    // Initial calculation
+
+    updateRentalDetails();
+
   </script>
+
 
 </body>
 
