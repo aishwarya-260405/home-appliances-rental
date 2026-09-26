@@ -257,14 +257,33 @@
 
           if (result.success) {
 
-            alert(
-              "Payment successful and verified! 🎉"
-            );
+  // Store confirmation details
+  sessionStorage.setItem(
+    "paymentId",
+    result.paymentId
+  );
 
-            window.location.href =
-              "/requests";
+  sessionStorage.setItem(
+    "requestId",
+    result.requestId
+  );
 
-          }
+  sessionStorage.setItem(
+    "orderId",
+    result.orderId
+  );
+
+  sessionStorage.setItem(
+    "amount",
+    result.amount
+  );
+
+  // Open confirmation page
+ window.location.href =
+  "/payment/success?request_id=" +
+  encodeURIComponent(result.requestId);
+
+}
 
 
           // ==============================================

@@ -5,6 +5,48 @@ const router = express.Router();
 
 
 // ======================================================
+// FORMAT DATE AS YYYY-MM-DD
+// ======================================================
+
+function formatDate(date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
+}
+
+
+// ======================================================
+// ADD MONTHS TO DATE SAFELY
+// ======================================================
+
+function addMonths(date, months) {
+  const result = new Date(date);
+
+  const originalDay = result.getDate();
+
+  result.setDate(1);
+
+  result.setMonth(
+    result.getMonth() + months
+  );
+
+  const lastDayOfMonth = new Date(
+    result.getFullYear(),
+    result.getMonth() + 1,
+    0
+  ).getDate();
+
+  result.setDate(
+    Math.min(originalDay, lastDayOfMonth)
+  );
+
+  return result;
+}
+
+
+// ======================================================
 // CREATE RAZORPAY ORDER
 // ======================================================
 
@@ -19,7 +61,11 @@ router.post("/payment/create-order", (req, res) => {
 
   const userId = req.session.user.id;
   const productId = req.body.product_id;
-  const rentalMonths = parseInt(req.body.rental_months, 10);
+
+  const rentalMonths = parseInt(
+    req.body.rental_months,
+    10
+  );
 
 
   // ====================================================
@@ -42,15 +88,25 @@ router.post("/payment/create-order", (req, res) => {
   db.get(
     "SELECT * FROM products WHERE id = ?",
     [productId],
+
     async (err, product) => {
 
       if (err) {
-        console.error("Product fetch error:", err);
-        return res.send("Error fetching product");
+        console.error(
+          "Product fetch error:",
+          err
+        );
+
+        return res.send(
+          "Error fetching product"
+        );
       }
 
+
       if (!product) {
-        return res.send("Product not found");
+        return res.send(
+          "Product not found"
+        );
       }
 
 
@@ -67,9 +123,9 @@ router.post("/payment/create-order", (req, res) => {
 
       try {
 
-        // ==================================================
+        // ================================================
         // CREATE RAZORPAY ORDER
-        // ==================================================
+        // ================================================
 
         const order =
           await razorpay.orders.create({
@@ -90,9 +146,9 @@ router.post("/payment/create-order", (req, res) => {
         );
 
 
-        // ==================================================
+        // ================================================
         // CREATE RENTAL REQUEST
-        // ==================================================
+        // ================================================
 
         db.run(
           `INSERT INTO requests
@@ -104,6 +160,7 @@ router.post("/payment/create-order", (req, res) => {
             status
           )
           VALUES (?, ?, ?, ?, ?)`,
+
           [
             userId,
             productId,
@@ -111,6 +168,7 @@ router.post("/payment/create-order", (req, res) => {
             totalAmount,
             "Payment Pending"
           ],
+
           function (requestErr) {
 
             if (requestErr) {
@@ -136,9 +194,9 @@ router.post("/payment/create-order", (req, res) => {
             );
 
 
-            // ==================================================
+            // ==========================================
             // SAVE PAYMENT RECORD
-            // ==================================================
+            // ==========================================
 
             db.run(
               `INSERT INTO payments
@@ -152,6 +210,7 @@ router.post("/payment/create-order", (req, res) => {
                 status
               )
               VALUES (?, ?, ?, ?, ?, ?, ?)`,
+
               [
                 requestId,
                 userId,
@@ -161,6 +220,7 @@ router.post("/payment/create-order", (req, res) => {
                 order.id,
                 "Created"
               ],
+
               function (paymentErr) {
 
                 if (paymentErr) {
@@ -182,29 +242,33 @@ router.post("/payment/create-order", (req, res) => {
                 );
 
 
-                // ==================================================
-                // SEND PAYMENT PAGE
-                // ==================================================
+                // ========================================
+                // PAYMENT PAGE
+                // ========================================
 
-                res.render("payment", {
+                res.render(
+                  "payment",
+                  {
+                    user:
+                      req.session.user,
 
-                  user: req.session.user,
+                    product:
+                      product,
 
-                  product: product,
+                    rentalMonths:
+                      rentalMonths,
 
-                  rentalMonths:
-                    rentalMonths,
+                    totalAmount:
+                      totalAmount,
 
-                  totalAmount:
-                    totalAmount,
+                    razorpayOrderId:
+                      order.id,
 
-                  razorpayOrderId:
-                    order.id,
-
-                  razorpayKeyId:
-                    req.app.locals.razorpayKeyId
-
-                });
+                    razorpayKeyId:
+                      req.app.locals
+                        .razorpayKeyId
+                  }
+                );
 
               }
             );
@@ -234,285 +298,651 @@ router.post("/payment/create-order", (req, res) => {
 // VERIFY RAZORPAY PAYMENT
 // ======================================================
 
-router.post("/payment/verify", (req, res) => {
+router.post(
+  "/payment/verify",
+  (req, res) => {
 
-  if (!req.session.user) {
+    if (!req.session.user) {
 
-    return res.status(401).json({
+      return res.status(401).json({
+        success: false,
+        message: "User not logged in"
+      });
 
-      success: false,
-
-      message:
-        "User not logged in"
-
-    });
-
-  }
+    }
 
 
-  const db = req.app.locals.db;
+    const db =
+      req.app.locals.db;
 
-  const userId =
-    req.session.user.id;
-
-
-  const {
-    razorpay_order_id,
-    razorpay_payment_id,
-    razorpay_signature
-  } = req.body;
+    const userId =
+      req.session.user.id;
 
 
-  // ====================================================
-  // VALIDATE RESPONSE
-  // ====================================================
-
-  if (
-    !razorpay_order_id ||
-    !razorpay_payment_id ||
-    !razorpay_signature
-  ) {
-
-    return res.status(400).json({
-
-      success: false,
-
-      message:
-        "Missing payment verification data"
-
-    });
-
-  }
-
-
-  // ====================================================
-  // FIND PAYMENT
-  // ====================================================
-
-  db.get(
-    `SELECT *
-     FROM payments
-     WHERE razorpay_order_id = ?
-     AND user_id = ?`,
-    [
+    const {
       razorpay_order_id,
-      userId
-    ],
-    (err, paymentRecord) => {
-
-      if (err) {
-
-        console.error(
-          "Payment lookup error:",
-          err
-        );
-
-        return res.status(500).json({
-
-          success: false,
-
-          message:
-            "Database error"
-
-        });
-
-      }
+      razorpay_payment_id,
+      razorpay_signature
+    } = req.body;
 
 
-      if (!paymentRecord) {
+    // ==================================================
+    // VALIDATE PAYMENT RESPONSE
+    // ==================================================
 
-        return res.status(404).json({
+    if (
+      !razorpay_order_id ||
+      !razorpay_payment_id ||
+      !razorpay_signature
+    ) {
 
-          success: false,
+      return res.status(400).json({
 
-          message:
-            "Payment order not found"
+        success: false,
 
-        });
+        message:
+          "Missing payment verification data"
 
-      }
+      });
 
-
-      // ==================================================
-      // CHECK IF ALREADY PAID
-      // ==================================================
-
-      if (paymentRecord.status === "Paid") {
-
-        return res.json({
-
-          success: true,
-
-          message:
-            "Payment already verified",
-
-          paymentId:
-            paymentRecord.razorpay_payment_id
-
-        });
-
-      }
+    }
 
 
-      // ==================================================
-      // GENERATE SIGNATURE
-      // ==================================================
+    // ==================================================
+    // FIND PAYMENT + RENTAL
+    // ==================================================
 
-      const generatedSignature =
-        crypto
-          .createHmac(
-            "sha256",
-            process.env.RAZORPAY_KEY_SECRET
-          )
-          .update(
-            razorpay_order_id +
-            "|" +
-            razorpay_payment_id
-          )
-          .digest("hex");
+    db.get(
+      `SELECT
 
+        pay.*,
 
-      // ==================================================
-      // VERIFY SIGNATURE
-      // ==================================================
+        r.rental_months,
 
-      if (
-        generatedSignature !==
-        razorpay_signature
-      ) {
+        r.total_amount AS rental_total
 
-        console.error(
-          "❌ PAYMENT SIGNATURE INVALID"
-        );
+       FROM payments pay
 
-        return res.status(400).json({
+       JOIN requests r
+         ON pay.request_id = r.id
 
-          success: false,
+       WHERE pay.razorpay_order_id = ?
 
-          message:
-            "Payment verification failed"
+       AND pay.user_id = ?`,
 
-        });
+      [
+        razorpay_order_id,
+        userId
+      ],
 
-      }
+      (err, paymentRecord) => {
 
+        if (err) {
 
-      console.log(
-        "✅ PAYMENT SIGNATURE VERIFIED:",
-        razorpay_payment_id
-      );
+          console.error(
+            "Payment lookup error:",
+            err
+          );
 
+          return res.status(500).json({
 
-      // ==================================================
-      // UPDATE PAYMENT
-      // ==================================================
+            success: false,
 
-      db.run(
-        `UPDATE payments
-         SET
-           razorpay_payment_id = ?,
-           razorpay_signature = ?,
-           status = ?
-         WHERE razorpay_order_id = ?
-         AND user_id = ?`,
-        [
-          razorpay_payment_id,
-          razorpay_signature,
-          "Paid",
-          razorpay_order_id,
-          userId
-        ],
-        function (paymentUpdateErr) {
+            message:
+              "Database error"
 
-          if (paymentUpdateErr) {
+          });
 
-            console.error(
-              "Payment update error:",
-              paymentUpdateErr
-            );
-
-            return res.status(500).json({
-
-              success: false,
-
-              message:
-                "Could not update payment"
-
-            });
-
-          }
+        }
 
 
-          // ==================================================
-          // UPDATE RENTAL REQUEST
-          // ==================================================
+        if (!paymentRecord) {
 
-          db.run(
-            `UPDATE requests
-             SET status = ?
-             WHERE id = ?
-             AND user_id = ?`,
-            [
-              "Paid",
+          return res.status(404).json({
+
+            success: false,
+
+            message:
+              "Payment order not found"
+
+          });
+
+        }
+
+
+        // ==================================================
+        // CHECK IF ALREADY PAID
+        // ==================================================
+
+        if (
+          paymentRecord.status === "Paid"
+        ) {
+
+          return res.json({
+
+            success: true,
+
+            message:
+              "Payment already verified",
+
+            paymentId:
+              paymentRecord
+                .razorpay_payment_id,
+
+            requestId:
               paymentRecord.request_id,
-              userId
-            ],
-            function (requestUpdateErr) {
 
-              if (requestUpdateErr) {
+            orderId:
+              paymentRecord
+                .razorpay_order_id,
 
-                console.error(
-                  "Rental request update error:",
-                  requestUpdateErr
-                );
+            amount:
+              paymentRecord.amount,
 
-                return res.status(500).json({
+            currency:
+              paymentRecord.currency,
 
-                  success: false,
+            productId:
+              paymentRecord.product_id
 
-                  message:
-                    "Payment verified but rental request could not be updated"
+          });
 
-                });
-
-              }
+        }
 
 
-              console.log(
-                "✅ RENTAL REQUEST MARKED AS PAID:",
-                paymentRecord.request_id
+        // ==================================================
+        // GENERATE SIGNATURE
+        // ==================================================
+
+        const generatedSignature =
+          crypto
+            .createHmac(
+              "sha256",
+              process.env.RAZORPAY_KEY_SECRET
+            )
+            .update(
+              razorpay_order_id +
+              "|" +
+              razorpay_payment_id
+            )
+            .digest("hex");
+
+
+        // ==================================================
+        // VERIFY SIGNATURE
+        // ==================================================
+
+        if (
+          generatedSignature !==
+          razorpay_signature
+        ) {
+
+          console.error(
+            "❌ PAYMENT SIGNATURE INVALID"
+          );
+
+          return res.status(400).json({
+
+            success: false,
+
+            message:
+              "Payment verification failed"
+
+          });
+
+        }
+
+
+        console.log(
+          "✅ PAYMENT SIGNATURE VERIFIED:",
+          razorpay_payment_id
+        );
+
+
+        // ==================================================
+        // UPDATE PAYMENT
+        // ==================================================
+
+        db.run(
+          `UPDATE payments
+
+           SET
+             razorpay_payment_id = ?,
+             razorpay_signature = ?,
+             status = ?
+
+           WHERE razorpay_order_id = ?
+
+           AND user_id = ?`,
+
+          [
+            razorpay_payment_id,
+            razorpay_signature,
+            "Paid",
+            razorpay_order_id,
+            userId
+          ],
+
+          function (paymentUpdateErr) {
+
+            if (paymentUpdateErr) {
+
+              console.error(
+                "Payment update error:",
+                paymentUpdateErr
               );
 
+              return res.status(500).json({
 
-              // ==================================================
-              // FINAL SUCCESS RESPONSE
-              // ==================================================
-
-              return res.json({
-
-                success: true,
+                success: false,
 
                 message:
-                  "Payment verified successfully",
-
-                paymentId:
-                  razorpay_payment_id,
-
-                requestId:
-                  paymentRecord.request_id
+                  "Could not update payment"
 
               });
 
             }
-          );
 
-        }
+
+            // ==================================================
+            // CALCULATE RENTAL DATES
+            // ==================================================
+
+            const rentalStartDate =
+              new Date();
+
+
+            const rentalEndDate =
+              addMonths(
+                rentalStartDate,
+                paymentRecord.rental_months
+              );
+
+
+            const startDate =
+              formatDate(
+                rentalStartDate
+              );
+
+
+            const endDate =
+              formatDate(
+                rentalEndDate
+              );
+
+
+            console.log(
+              "🔥 RENTAL START DATE:",
+              startDate
+            );
+
+            console.log(
+              "🔥 RENTAL END DATE:",
+              endDate
+            );
+
+
+            // ==================================================
+            // UPDATE RENTAL REQUEST
+            // ==================================================
+
+            db.run(
+              `UPDATE requests
+
+               SET
+                 status = ?,
+                 rental_start_date = ?,
+                 rental_end_date = ?
+
+               WHERE id = ?
+
+               AND user_id = ?`,
+
+              [
+                "Paid",
+                startDate,
+                endDate,
+                paymentRecord.request_id,
+                userId
+              ],
+
+              function (requestUpdateErr) {
+
+                if (requestUpdateErr) {
+
+                  console.error(
+                    "Rental request update error:",
+                    requestUpdateErr
+                  );
+
+                  return res.status(500).json({
+
+                    success: false,
+
+                    message:
+                      "Payment verified but rental request could not be updated"
+
+                  });
+
+                }
+
+
+                console.log(
+                  "✅ RENTAL REQUEST MARKED AS PAID:",
+                  paymentRecord.request_id
+                );
+
+
+                console.log(
+                  "📅 RENTAL PERIOD:",
+                  startDate,
+                  "to",
+                  endDate
+                );
+
+
+                // ==================================================
+                // FINAL SUCCESS RESPONSE
+                // ==================================================
+
+                return res.json({
+
+                  success: true,
+
+                  message:
+                    "Payment verified successfully",
+
+                  paymentId:
+                    razorpay_payment_id,
+
+                  requestId:
+                    paymentRecord.request_id,
+
+                  orderId:
+                    razorpay_order_id,
+
+                  amount:
+                    paymentRecord.amount,
+
+                  currency:
+                    paymentRecord.currency,
+
+                  productId:
+                    paymentRecord.product_id,
+
+                  rentalStartDate:
+                    startDate,
+
+                  rentalEndDate:
+                    endDate
+
+                });
+
+              }
+            );
+
+          }
+        );
+
+      }
+
+    );
+
+  }
+);
+
+
+// ======================================================
+// PAYMENT SUCCESS PAGE
+// ======================================================
+
+router.get(
+  "/payment/success",
+  (req, res) => {
+
+    if (!req.session.user) {
+
+      return res.redirect(
+        "/login"
       );
 
     }
-  );
 
-});
 
+    const db =
+      req.app.locals.db;
+
+    const userId =
+      req.session.user.id;
+
+    const requestId =
+      req.query.request_id;
+
+
+    // ==================================================
+    // REQUEST ID REQUIRED
+    // ==================================================
+
+    if (!requestId) {
+
+      return res.redirect(
+        "/requests"
+      );
+
+    }
+
+
+    // ==================================================
+    // GET BOOKING + PAYMENT DETAILS
+    // ==================================================
+
+    db.get(
+      `SELECT
+
+        r.id AS request_id,
+
+        r.rental_months,
+
+        r.total_amount,
+
+        r.status AS rental_status,
+
+        r.request_date,
+
+        r.rental_start_date,
+
+        r.rental_end_date,
+
+        p.name AS product_name,
+
+        p.category,
+
+        p.price AS monthly_price,
+
+        pay.razorpay_order_id,
+
+        pay.razorpay_payment_id,
+
+        pay.amount AS paid_amount,
+
+        pay.currency,
+
+        pay.status AS payment_status
+
+       FROM requests r
+
+       JOIN products p
+         ON r.product_id = p.id
+
+       LEFT JOIN payments pay
+         ON pay.request_id = r.id
+
+       WHERE r.id = ?
+
+       AND r.user_id = ?`,
+
+      [
+        requestId,
+        userId
+      ],
+
+      (err, booking) => {
+
+        if (err) {
+
+          console.error(
+            "Booking details error:",
+            err
+          );
+
+          return res.send(
+            "Error loading booking details"
+          );
+
+        }
+
+
+        if (!booking) {
+
+          return res.redirect(
+            "/requests"
+          );
+
+        }
+
+
+        // ==================================================
+        // BACKFILL OLD BOOKINGS
+        // ==================================================
+
+        if (
+          !booking.rental_start_date ||
+          !booking.rental_end_date
+        ) {
+
+          console.log(
+            "📅 OLD BOOKING DETECTED:",
+            booking.request_id
+          );
+
+
+          // Use original request date
+          // for existing bookings.
+
+          const rentalStartDate =
+            new Date(
+              booking.request_date
+            );
+
+
+          const rentalEndDate =
+            addMonths(
+              rentalStartDate,
+              booking.rental_months
+            );
+
+
+          const startDate =
+            formatDate(
+              rentalStartDate
+            );
+
+
+          const endDate =
+            formatDate(
+              rentalEndDate
+            );
+
+
+          // ==============================================
+          // SAVE DATES TO DATABASE
+          // ==============================================
+
+          db.run(
+            `UPDATE requests
+
+             SET
+               rental_start_date = ?,
+               rental_end_date = ?
+
+             WHERE id = ?
+
+             AND user_id = ?`,
+
+            [
+              startDate,
+              endDate,
+              requestId,
+              userId
+            ],
+
+            (updateErr) => {
+
+              if (updateErr) {
+
+                console.error(
+                  "Rental date update error:",
+                  updateErr
+                );
+
+              } else {
+
+                console.log(
+                  "✅ OLD BOOKING DATES SAVED:",
+                  startDate,
+                  "to",
+                  endDate
+                );
+
+              }
+
+            }
+          );
+
+
+          // Update page immediately
+          booking.rental_start_date =
+            startDate;
+
+          booking.rental_end_date =
+            endDate;
+
+        }
+
+
+        // ==================================================
+        // LOAD SUCCESS PAGE
+        // ==================================================
+
+        console.log(
+          "🔥 BOOKING DETAILS LOADED:",
+          booking.request_id
+        );
+
+
+        res.render(
+          "payment-success",
+          {
+
+            user:
+              req.session.user,
+
+            booking:
+              booking
+
+          }
+        );
+
+      }
+
+    );
+
+  }
+);
+
+
+// ======================================================
+// EXPORT ROUTER
+// ======================================================
 
 module.exports = router;

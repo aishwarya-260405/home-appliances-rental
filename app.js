@@ -90,6 +90,30 @@ db.serialize(() => {
   });
 
   db.run(`
+  ALTER TABLE requests
+  ADD COLUMN rental_start_date TEXT
+`, (err) => {
+  if (err && !err.message.includes("duplicate column name")) {
+    console.error(
+      "rental_start_date column error:",
+      err.message
+    );
+  }
+});
+
+db.run(`
+  ALTER TABLE requests
+  ADD COLUMN rental_end_date TEXT
+`, (err) => {
+  if (err && !err.message.includes("duplicate column name")) {
+    console.error(
+      "rental_end_date column error:",
+      err.message
+    );
+  }
+});
+
+  db.run(`
     ALTER TABLE requests
     ADD COLUMN total_amount INTEGER DEFAULT 0
   `, (err) => {

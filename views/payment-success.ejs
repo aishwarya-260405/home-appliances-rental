@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>
+    Booking Confirmed - Home Appliances Rental
+  </title>
+
+  <link rel="stylesheet" href="/style.css">
+
+  <style>
+
+    body {
+      background: #f4f7fc;
+    }
+
+    .success-container {
+      max-width: 700px;
+      margin: 55px auto;
+      padding: 20px;
+    }
+
+    .success-card {
+      background: white;
+      border-radius: 20px;
+      padding: 40px;
+      text-align: center;
+
+      box-shadow:
+        0 8px 30px rgba(0, 0, 0, 0.12);
+    }
+
+
+    /* ==============================
+       SUCCESS ICON
+    ============================== */
+
+    .success-icon {
+      width: 85px;
+      height: 85px;
+
+      margin: 0 auto 20px;
+
+      border-radius: 50%;
+
+      background: #dcfce7;
+      color: #16a34a;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      font-size: 48px;
+      font-weight: bold;
+
+      box-shadow:
+        0 5px 15px rgba(22, 163, 74, 0.15);
+    }
+
+
+    /* ==============================
+       HEADING
+    ============================== */
+
+    .success-card h1 {
+      color: #166534;
+      margin-bottom: 10px;
+      font-size: 32px;
+    }
+
+    .success-message {
+      color: #555;
+      margin-bottom: 30px;
+      font-size: 16px;
+    }
+
+
+    /* ==============================
+       BOOKING DETAILS
+    ============================== */
+
+    .booking-details {
+      background: #f1f5ff;
+
+      border-radius: 14px;
+
+      padding: 25px;
+
+      text-align: left;
+
+      margin-bottom: 25px;
+    }
+
+    .booking-details h2 {
+      color: #1e3a8a;
+
+      text-align: center;
+
+      margin-bottom: 20px;
+    }
+
+
+    .detail-row {
+      display: flex;
+
+      justify-content: space-between;
+
+      align-items: center;
+
+      gap: 20px;
+
+      padding: 12px 0;
+
+      border-bottom:
+        1px solid #dbeafe;
+    }
+
+
+    .detail-row:last-child {
+      border-bottom: none;
+    }
+
+
+    .detail-label {
+      color: #555;
+
+      font-size: 15px;
+    }
+
+
+    .detail-value {
+      font-weight: bold;
+
+      color: #1e3a8a;
+
+      text-align: right;
+
+      word-break: break-word;
+    }
+
+
+    /* ==============================
+       PAYMENT STATUS
+    ============================== */
+
+    .paid-status {
+      color: #16a34a;
+    }
+
+
+    /* ==============================
+       TOTAL
+    ============================== */
+
+    .total-row {
+      margin-top: 12px;
+
+      padding-top: 18px;
+
+      border-top:
+        2px solid #bfdbfe;
+    }
+
+
+    .total-value {
+      font-size: 24px;
+
+      color: #2563eb;
+    }
+
+
+    /* ==============================
+       RENTAL STATUS
+    ============================== */
+
+    .rental-status {
+      display: inline-block;
+
+      padding: 6px 12px;
+
+      border-radius: 20px;
+
+      background: #dcfce7;
+
+      color: #166534;
+
+      font-weight: bold;
+    }
+
+
+    /* ==============================
+       BUTTONS
+    ============================== */
+
+    .button-group {
+      display: flex;
+
+      gap: 12px;
+
+      margin-top: 25px;
+    }
+
+
+    .success-btn {
+      flex: 1;
+
+      padding: 14px;
+
+      border-radius: 8px;
+
+      text-decoration: none;
+
+      font-size: 16px;
+
+      font-weight: bold;
+
+      transition: 0.2s;
+    }
+
+
+    .primary-btn {
+      background: #2563eb;
+
+      color: white;
+    }
+
+
+    .primary-btn:hover {
+      background: #1d4ed8;
+    }
+
+
+    .secondary-btn {
+      background: #e5e7eb;
+
+      color: #1f2937;
+    }
+
+
+    .secondary-btn:hover {
+      background: #d1d5db;
+    }
+
+
+    /* ==============================
+       CONFIRMATION NOTE
+    ============================== */
+
+    .confirmation-note {
+      margin-top: 25px;
+
+      padding: 15px;
+
+      background: #f8fafc;
+
+      border-radius: 10px;
+
+      color: #555;
+
+      font-size: 14px;
+    }
+
+
+    /* ==============================
+       MOBILE
+    ============================== */
+
+    @media (max-width: 600px) {
+
+      .success-container {
+        margin: 25px auto;
+      }
+
+
+      .success-card {
+        padding: 25px;
+      }
+
+
+      .success-card h1 {
+        font-size: 27px;
+      }
+
+
+      .detail-row {
+        flex-direction: column;
+
+        align-items: flex-start;
+
+        gap: 5px;
+      }
+
+
+      .detail-value {
+        text-align: left;
+      }
+
+
+      .button-group {
+        flex-direction: column;
+      }
+
+    }
+
+  </style>
+
+</head>
+
+
+<body>
+
+
+  <!-- ==========================================
+       NAVBAR
+  =========================================== -->
+
+  <nav class="navbar">
+
+    <div class="logo">
+      Home Appliances Rental
+    </div>
+
+
+    <div class="nav-links">
+
+      <a href="/">
+        Home
+      </a>
+
+      <a href="/products">
+        Products
+      </a>
+
+      <a href="/requests">
+        My Requests
+      </a>
+
+      <a href="/logout">
+        Logout
+      </a>
+
+    </div>
+
+  </nav>
+
+
+  <!-- ==========================================
+       BOOKING CONFIRMATION
+  =========================================== -->
+
+  <div class="success-container">
+
+    <div class="success-card">
+
+
+      <!-- SUCCESS ICON -->
+
+      <div class="success-icon">
+        ✓
+      </div>
+
+
+      <!-- TITLE -->
+
+      <h1>
+        Booking Confirmed!
+      </h1>
+
+
+      <p class="success-message">
+
+        Your payment has been successfully
+        verified and your rental has been confirmed.
+
+      </p>
+
+
+      <!-- ======================================
+           RENTAL DETAILS
+      ======================================= -->
+
+      <div class="booking-details">
+
+
+        <h2>
+          Rental Details
+        </h2>
+
+
+        <!-- PRODUCT -->
+
+        <div class="detail-row">
+
+          <span class="detail-label">
+            Product
+          </span>
+
+          <span class="detail-value">
+
+            <%= booking.product_name %>
+
+          </span>
+
+        </div>
+
+
+        <!-- CATEGORY -->
+
+        <div class="detail-row">
+
+          <span class="detail-label">
+            Category
+          </span>
+
+          <span class="detail-value">
+
+            <%= booking.category %>
+
+          </span>
+
+        </div>
+
+
+        <!-- MONTHLY PRICE -->
+
+        <div class="detail-row">
+
+          <span class="detail-label">
+            Monthly Price
+          </span>
+
+          <span class="detail-value">
+
+            ₹<%= Number(
+              booking.monthly_price
+            ).toLocaleString("en-IN") %>
+
+          </span>
+
+        </div>
+
+
+        <!-- RENTAL DURATION -->
+
+        <div class="detail-row">
+
+          <span class="detail-label">
+            Rental Duration
+          </span>
+
+          <span class="detail-value">
+
+            <%= booking.rental_months %>
+
+            Month<%= booking.rental_months > 1
+              ? "s"
+              : ""
+            %>
+
+          </span>
+
+        </div>
+
+        <!-- RENTAL START DATE -->
+
+<div class="detail-row">
+
+  <span class="detail-label">
+    Rental Start Date
+  </span>
+
+  <span class="detail-value">
+
+    <%= booking.rental_start_date %>
+
+  </span>
+
+</div>
+
+
+<!-- RENTAL END DATE -->
+
+<div class="detail-row">
+
+  <span class="detail-label">
+    Rental End Date
+  </span>
+
+  <span class="detail-value">
+
+    <%= booking.rental_end_date %>
+
+  </span>
+
+</div>
+
+
+        <!-- PAYMENT STATUS -->
+
+        <div class="detail-row">
+
+          <span class="detail-label">
+            Payment Status
+          </span>
+
+          <span class="detail-value paid-status">
+
+            <%= booking.payment_status %> ✓
+
+          </span>
+
+        </div>
+
+
+        <!-- RENTAL STATUS -->
+
+        <div class="detail-row">
+
+          <span class="detail-label">
+            Rental Status
+          </span>
+
+          <span class="detail-value">
+
+            <span class="rental-status">
+
+              <%= booking.rental_status %>
+
+            </span>
+
+          </span>
+
+        </div>
+
+
+        <!-- PAYMENT ID -->
+
+        <div class="detail-row">
+
+          <span class="detail-label">
+            Payment ID
+          </span>
+
+          <span class="detail-value">
+
+            <%= booking.razorpay_payment_id ||
+                "Not available" %>
+
+          </span>
+
+        </div>
+
+
+        <!-- ORDER ID -->
+
+        <div class="detail-row">
+
+          <span class="detail-label">
+            Razorpay Order ID
+          </span>
+
+          <span class="detail-value">
+
+            <%= booking.razorpay_order_id ||
+                "Not available" %>
+
+          </span>
+
+        </div>
+
+
+        <!-- REQUEST ID -->
+
+        <div class="detail-row">
+
+          <span class="detail-label">
+            Rental Request ID
+          </span>
+
+          <span class="detail-value">
+
+            #<%= booking.request_id %>
+
+          </span>
+
+        </div>
+
+
+        <!-- REQUEST DATE -->
+
+        <div class="detail-row">
+
+          <span class="detail-label">
+            Booking Date
+          </span>
+
+          <span class="detail-value">
+
+            <%= booking.request_date %>
+
+          </span>
+
+        </div>
+
+
+        <!-- TOTAL -->
+
+        <div class="detail-row total-row">
+
+          <span class="detail-label">
+            Total Paid
+          </span>
+
+          <span class="detail-value total-value">
+
+            ₹<%= Number(
+              booking.paid_amount ||
+              booking.total_amount
+            ).toLocaleString("en-IN") %>
+
+          </span>
+
+        </div>
+
+
+      </div>
+
+
+      <!-- ======================================
+           BUTTONS
+      ======================================= -->
+
+      <div class="button-group">
+
+
+        <a
+          href="/requests"
+          class="success-btn primary-btn"
+        >
+          View My Rentals
+        </a>
+
+
+        <a
+          href="/products"
+          class="success-btn secondary-btn"
+        >
+          Back to Products
+        </a>
+
+
+      </div>
+
+
+      <!-- ======================================
+           CONFIRMATION NOTE
+      ======================================= -->
+
+      <div class="confirmation-note">
+
+        🔒 Your payment has been verified securely.
+
+        <br>
+
+        Your rental request has been recorded
+        successfully.
+
+      </div>
+
+
+    </div>
+
+  </div>
+
+
+</body>
+
+</html>
